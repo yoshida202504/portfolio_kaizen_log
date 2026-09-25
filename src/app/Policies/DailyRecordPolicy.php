@@ -9,6 +9,12 @@ class DailyRecordPolicy
 {
     public function view(User $user, DailyRecord $record): bool
     {
+        $recordOwner = $record->user;
+
+        if (! $recordOwner) {
+            return false;
+        }
+
         if ($user->id === $record->user_id) {
             return true;
         }
@@ -17,7 +23,7 @@ class DailyRecordPolicy
             return true;
         }
 
-        return $user->isMutuallyFollowing($record->user);
+        return $user->isMutuallyFollowing($recordOwner);
     }
 
     public function update(User $user, DailyRecord $record): bool

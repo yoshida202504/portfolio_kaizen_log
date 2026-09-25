@@ -12,6 +12,8 @@ use App\Http\Controllers\FollowController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\MyPageController;
+use App\Http\Controllers\ProfileController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
@@ -26,6 +28,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::post('/users/{user}/follow', [FollowController::class, 'store'])->name('users.follow.store');
     Route::delete('/users/{user}/follow', [FollowController::class, 'destroy'])->name('users.follow.destroy');
+    Route::get('/mypage', [MyPageController::class, 'index'])->name('mypage');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/records/create', [DailyRecordController::class, 'create'])->name('records.create');
     Route::post('/records', [DailyRecordController::class, 'store'])->name('records.store');
     Route::get('/records/search', [HomeController::class, 'search'])->name('records.search');
