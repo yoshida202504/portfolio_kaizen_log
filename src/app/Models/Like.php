@@ -10,7 +10,11 @@ class Like extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
+    const UPDATED_AT = null;
+
+    protected $fillable = [
+        'daily_record_id',
+    ];
 
     public function user(): BelongsTo
     {

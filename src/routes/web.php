@@ -10,6 +10,8 @@ use App\Http\Controllers\ImprovementController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\LikeController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
@@ -28,6 +30,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/records', [DailyRecordController::class, 'store'])->name('records.store');
     Route::get('/records/search', [HomeController::class, 'search'])->name('records.search');
     Route::get('/records/{record}/edit', [DailyRecordController::class, 'edit'])->name('records.edit');
+    Route::post('/records/{record}/like', [LikeController::class, 'store'])->name('records.like.store');
+    Route::delete('/records/{record}/like', [LikeController::class, 'destroy'])->name('records.like.destroy');
+    Route::post('/records/{record}/comments', [CommentController::class, 'store'])->name('records.comments.store');
+    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::get('/records/{record}/improvement', [ImprovementController::class, 'edit'])->name('records.improvement.edit');
     Route::patch('/records/{record}/improvement', [ImprovementController::class, 'update'])->name('records.improvement.update');
     Route::patch('/records/{record}', [DailyRecordController::class, 'update'])->name('records.update');
