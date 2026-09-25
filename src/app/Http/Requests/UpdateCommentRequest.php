@@ -2,6 +2,4 @@
 
 namespace App\Http\Requests;
 
-class UpdateCommentRequest extends CommentBodyRequest
-{
-}
+class UpdateCommentRequest extends CommentBodyRequest {}

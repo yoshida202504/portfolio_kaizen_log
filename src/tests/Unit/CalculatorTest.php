@@ -2,9 +2,9 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use App\Services\Calculator;
 use PHPUnit\Framework\Attributes\Test;
-use App\Services\Calculator;  // ← まだ存在しないクラス！
+use PHPUnit\Framework\TestCase;  // ← まだ存在しないクラス！
 
 class CalculatorTest extends TestCase
 {
@@ -15,7 +15,7 @@ class CalculatorTest extends TestCase
     public function it_can_add_two_numbers()
     {
         // Arrange（準備）: テストに必要なオブジェクトを用意
-        $calculator = new Calculator();
+        $calculator = new Calculator;
 
         // Act（実行）: テストしたい機能を実行
         $result = $calculator->add(2, 3);
@@ -23,5 +23,4 @@ class CalculatorTest extends TestCase
         // Assert（検証）: 期待通りの結果になっているか確認
         $this->assertEquals(5, $result);
     }
-
 }

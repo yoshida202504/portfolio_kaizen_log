@@ -117,8 +117,8 @@ class MyPageTest extends TestCase
             ->assertSee('改善率の推移')
             ->assertSee('aria-label="改善率の推移グラフ"', false)
             ->assertSeeInOrder([
-                $firstRecord->record_date . '：20%',
-                $secondRecord->record_date . '：80%',
+                $firstRecord->record_date.'：20%',
+                $secondRecord->record_date.'：80%',
             ]);
     }
 
