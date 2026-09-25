@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>日報を作成する</title>
+        <style>
+            body { max-width: 640px; margin: 40px auto; padding: 0 16px; font-family: sans-serif; line-height: 1.5; }
+            label { display: block; margin-top: 16px; font-weight: bold; }
+            input, textarea, select { box-sizing: border-box; width: 100%; margin-top: 4px; padding: 8px; }
+            textarea { min-height: 96px; }
+            .errors { padding: 12px 16px; color: #b91c1c; background: #fef2f2; }
+            button { margin-top: 24px; padding: 8px 16px; border: 0; background: #2563eb; color: #fff; cursor: pointer; }
+        </style>
+    </head>
+    <body>
+        <h1>日報を作成する</h1>
+
+        @if ($errors->any())
+            <div class="errors">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('records.store') }}" enctype="multipart/form-data">
+            @csrf
+
+            <label for="record_date">日付</label>
+            <input id="record_date" name="record_date" type="date" value="{{ old('record_date', now()->toDateString()) }}" required>
+
+            <label for="actions">今日やったこと</label>
+            <textarea id="actions" name="actions" required>{{ old('actions') }}</textarea>
+
+            <label for="good_points">良かったこと</label>
+            <textarea id="good_points" name="good_points" required>{{ old('good_points') }}</textarea>
+
+            <label for="improvement_points">改善点</label>
+            <textarea id="improvement_points" name="improvement_points" required>{{ old('improvement_points') }}</textarea>
+
+            <label for="improvement_strategy">改善策</label>
+            <textarea id="improvement_strategy" name="improvement_strategy" required>{{ old('improvement_strategy') }}</textarea>
+
+            <label for="is_public">公開設定</label>
+            <select id="is_public" name="is_public" required>
+                <option value="0" @selected((string) old('is_public', '0') === '0')>非公開</option>
+                <option value="1" @selected((string) old('is_public') === '1')>公開</option>
+            </select>
+
+            <label for="image">画像</label>
+            <input id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp">
+
+            <button type="submit">登録する</button>
+        </form>
+    </body>
+</html>
