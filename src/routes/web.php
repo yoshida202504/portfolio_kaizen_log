@@ -1,9 +1,17 @@
 <?php
 
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\DailyRecordController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ImprovementController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MyPageController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -15,10 +23,25 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::post('/users/{user}/follow', [FollowController::class, 'store'])->name('users.follow.store');
+    Route::delete('/users/{user}/follow', [FollowController::class, 'destroy'])->name('users.follow.destroy');
+    Route::get('/mypage', [MyPageController::class, 'index'])->name('mypage');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/records/create', [DailyRecordController::class, 'create'])->name('records.create');
     Route::post('/records', [DailyRecordController::class, 'store'])->name('records.store');
     Route::get('/records/search', [HomeController::class, 'search'])->name('records.search');
     Route::get('/records/{record}/edit', [DailyRecordController::class, 'edit'])->name('records.edit');
+    Route::post('/records/{record}/like', [LikeController::class, 'store'])->name('records.like.store');
+    Route::delete('/records/{record}/like', [LikeController::class, 'destroy'])->name('records.like.destroy');
+    Route::post('/records/{record}/comments', [CommentController::class, 'store'])->name('records.comments.store');
+    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::get('/records/{record}/improvement', [ImprovementController::class, 'edit'])->name('records.improvement.edit');
+    Route::patch('/records/{record}/improvement', [ImprovementController::class, 'update'])->name('records.improvement.update');
     Route::patch('/records/{record}', [DailyRecordController::class, 'update'])->name('records.update');
     Route::delete('/records/{record}', [DailyRecordController::class, 'destroy'])->name('records.destroy');
     Route::get('/records/{record}', [DailyRecordController::class, 'show'])->name('records.show');

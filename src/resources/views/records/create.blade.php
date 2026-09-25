@@ -8,6 +8,7 @@
             body { max-width: 640px; margin: 40px auto; padding: 0 16px; font-family: sans-serif; line-height: 1.5; }
             label { display: block; margin-top: 16px; font-weight: bold; }
             input, textarea, select { box-sizing: border-box; width: 100%; margin-top: 4px; padding: 8px; }
+            input[type="radio"] { width: auto; }
             textarea { min-height: 96px; }
             .errors { padding: 12px 16px; color: #b91c1c; background: #fef2f2; }
             button { margin-top: 24px; padding: 8px 16px; border: 0; background: #2563eb; color: #fff; cursor: pointer; }
@@ -44,11 +45,17 @@
             <label for="improvement_strategy">改善策</label>
             <textarea id="improvement_strategy" name="improvement_strategy" required>{{ old('improvement_strategy') }}</textarea>
 
-            <label for="is_public">公開設定</label>
-            <select id="is_public" name="is_public" required>
-                <option value="0" @selected((string) old('is_public', '0') === '0')>非公開</option>
-                <option value="1" @selected((string) old('is_public') === '1')>公開</option>
-            </select>
+            <fieldset>
+                <legend>この日報を公開しますか？</legend>
+                <label>
+                    <input name="is_public" type="radio" value="0" @checked((string) old('is_public', '0') === '0') required>
+                    非公開
+                </label>
+                <label>
+                    <input name="is_public" type="radio" value="1" @checked((string) old('is_public') === '1')>
+                    公開
+                </label>
+            </fieldset>
 
             <label for="image">画像</label>
             <input id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp">

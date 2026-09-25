@@ -13,8 +13,7 @@ class HomeController extends Controller
         $user = Auth::user();
 
         $dailyRecords = $user->dailyRecords()
-            ->orderByDesc('record_date')
-            ->orderByDesc('created_at')
+            ->latestRecordFirst()
             ->get();
 
         return view('home.index', compact('dailyRecords'));
@@ -38,8 +37,7 @@ class HomeController extends Controller
                         ->orWhere('improvement_strategy', 'like', "%{$keyword}%");
                 });
             })
-            ->orderByDesc('record_date')
-            ->orderByDesc('created_at')
+            ->latestRecordFirst()
             ->get();
 
         return view('home.index', compact('dailyRecords'));
