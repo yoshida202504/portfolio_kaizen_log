@@ -18,6 +18,8 @@
             <p>良かったこと：{{ $record->good_points }}</p>
             <p>改善点：{{ $record->improvement_points }}</p>
             <p>改善策：{{ $record->improvement_strategy }}</p>
+            <p>改善結果：{{ $record->improvement_result ?: '未記録' }}</p>
+            <p>改善率：{{ is_null($record->improvement_rate) ? '未記録' : $record->improvement_rate . '%' }}</p>
             <p>公開設定：{{ $record->is_public ? '公開' : '非公開' }}</p>
 
             @if ($record->image_path)
@@ -27,6 +29,12 @@
 
         @can('update', $record)
             <a href="{{ route('records.edit', $record) }}">編集する</a>
+
+            @if ($record->isImprovementInputAvailable())
+                <a href="{{ route('records.improvement.edit', $record) }}">改善結果を記録・編集</a>
+            @else
+                <p>改善結果の入力期限を過ぎています。</p>
+            @endif
         @endcan
 
         @can('delete', $record)

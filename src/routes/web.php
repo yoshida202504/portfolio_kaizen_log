@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ImprovementController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
@@ -19,6 +20,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/records', [DailyRecordController::class, 'store'])->name('records.store');
     Route::get('/records/search', [HomeController::class, 'search'])->name('records.search');
     Route::get('/records/{record}/edit', [DailyRecordController::class, 'edit'])->name('records.edit');
+    Route::get('/records/{record}/improvement', [ImprovementController::class, 'edit'])->name('records.improvement.edit');
+    Route::patch('/records/{record}/improvement', [ImprovementController::class, 'update'])->name('records.improvement.update');
     Route::patch('/records/{record}', [DailyRecordController::class, 'update'])->name('records.update');
     Route::delete('/records/{record}', [DailyRecordController::class, 'destroy'])->name('records.destroy');
     Route::get('/records/{record}', [DailyRecordController::class, 'show'])->name('records.show');
