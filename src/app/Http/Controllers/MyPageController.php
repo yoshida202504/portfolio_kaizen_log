@@ -24,8 +24,7 @@ class MyPageController extends Controller
             ->where('daily_records.user_id', '!=', $user->id)
             ->whereHas('likes', fn ($query) => $query->where('user_id', $user->id))
             ->visibleTo($user)
-            ->orderByDesc('record_date')
-            ->orderByDesc('created_at')
+            ->latestRecordFirst()
             ->get();
 
         $improvementRecords = $user->dailyRecords()

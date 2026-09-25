@@ -18,8 +18,7 @@ class UserController extends Controller
             ? collect()
             : $user->dailyRecords()
                 ->visibleTo($currentUser)
-                ->orderByDesc('record_date')
-                ->orderByDesc('created_at')
+                ->latestRecordFirst()
                 ->get();
 
         return view('users.show', compact('user', 'isOwnProfile', 'isFollowing', 'dailyRecords'));

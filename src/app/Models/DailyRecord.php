@@ -53,6 +53,11 @@ class DailyRecord extends Model
         return $today->lessThanOrEqualTo($deadline);
     }
 
+    public function scopeLatestRecordFirst(Builder $query): Builder
+    {
+        return $query->orderByDesc('record_date')->orderByDesc('created_at');
+    }
+
     public function scopeVisibleTo(Builder $query, User $viewer): Builder
     {
         $mutuallyFollowedUserIds = $viewer->mutuallyFollowingUserIds();

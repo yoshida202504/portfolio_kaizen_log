@@ -67,16 +67,10 @@ class DailyRecordController extends Controller
         if ($request->hasFile('image')) {
             $newImagePath = $request->file('image')->store('daily-records', 'public');
 
-            if ($record->image_path) {
-                Storage::disk('public')->delete($record->image_path);
-            }
-
+            $this->deleteImage($record);
             $validated['image_path'] = $newImagePath;
         } elseif ($request->boolean('remove_image')) {
-            if ($record->image_path) {
-                Storage::disk('public')->delete($record->image_path);
-            }
-
+            $this->deleteImage($record);
             $validated['image_path'] = null;
         }
 
@@ -89,12 +83,16 @@ class DailyRecordController extends Controller
     {
         $this->authorize('delete', $record);
 
-        if ($record->image_path) {
-            Storage::disk('public')->delete($record->image_path);
-        }
-
+        $this->deleteImage($record);
         $record->delete();
 
         return redirect()->route('home');
+    }
+
+    private function deleteImage(DailyRecord $record): void
+    {
+        if ($record->image_path) {
+            Storage::disk('public')->delete($record->image_path);
+        }
     }
 }
