@@ -17,6 +17,7 @@
 
             <div>
                 <a href="{{ route('records.create') }}">日報を作成する</a>
+                <a href="{{ route('community.index') }}">他のユーザーの日報を見る</a>
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

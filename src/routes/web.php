@@ -7,6 +7,10 @@ use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImprovementController;
 
+use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\FollowController;
+use App\Http\Controllers\UserController;
+
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
@@ -16,6 +20,10 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::post('/users/{user}/follow', [FollowController::class, 'store'])->name('users.follow.store');
+    Route::delete('/users/{user}/follow', [FollowController::class, 'destroy'])->name('users.follow.destroy');
     Route::get('/records/create', [DailyRecordController::class, 'create'])->name('records.create');
     Route::post('/records', [DailyRecordController::class, 'store'])->name('records.store');
     Route::get('/records/search', [HomeController::class, 'search'])->name('records.search');

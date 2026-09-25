@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Support\Carbon;
 
+use Illuminate\Database\Eloquent\Builder;
+
 class DailyRecord extends Model
 {
     use HasFactory, SoftDeletes;
@@ -49,5 +51,18 @@ class DailyRecord extends Model
             ->addDays(7);
 
         return $today->lessThanOrEqualTo($deadline);
+    }
+
+    public function scopeVisibleTo(Builder $query, User $viewer): Builder
+    {
+        $mutuallyFollowedUserIds = $viewer->mutuallyFollowingUserIds();
+
+        return $query->where(function (Builder $query) use ($mutuallyFollowedUserIds) {
+            $query->where('is_public', true);
+
+            if ($mutuallyFollowedUserIds->isNotEmpty()) {
+                $query->orWhereIn('user_id', $mutuallyFollowedUserIds);
+            }
+        });
     }
 }

@@ -10,7 +10,12 @@ class Follow extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
+    const UPDATED_AT = null;
+
+    protected $fillable = [
+        'follower_id',
+        'followed_id',
+    ];
 
     public function follower(): BelongsTo
     {
