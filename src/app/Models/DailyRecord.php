@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Illuminate\Support\Carbon;
+
 class DailyRecord extends Model
 {
     use HasFactory, SoftDeletes;
@@ -18,6 +20,8 @@ class DailyRecord extends Model
         'good_points',
         'improvement_points',
         'improvement_strategy',
+        'improvement_result',
+        'improvement_rate',
         'is_public',
         'image_path',
     ];
@@ -35,5 +39,15 @@ class DailyRecord extends Model
     public function likes(): HasMany
     {
         return $this->hasMany(Like::class);
+    }
+
+    public function isImprovementInputAvailable(): bool
+    {
+        $today = now(config('app.timezone'))->startOfDay();
+        $deadline = Carbon::parse($this->record_date, config('app.timezone'))
+            ->startOfDay()
+            ->addDays(7);
+
+        return $today->lessThanOrEqualTo($deadline);
     }
 }
