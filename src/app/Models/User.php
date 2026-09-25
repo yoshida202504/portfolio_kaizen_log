@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use Illuminate\Support\Collection;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -84,5 +86,24 @@ class User extends Authenticatable
             && $user->following()
                 ->where('followed_id', $this->id)
                 ->exists();
+    }
+
+    public function isFollowing(User $user): bool
+    {
+        return $this->following()
+            ->where('followed_id', $user->id)
+            ->exists();
+    }
+
+    public function mutuallyFollowingUserIds(): Collection
+    {
+        return $this->following()
+            ->whereExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('follows as reverse_follows')
+                    ->whereColumn('reverse_follows.follower_id', 'follows.followed_id')
+                    ->where('reverse_follows.followed_id', $this->id);
+            })
+            ->pluck('followed_id');
     }
 }
