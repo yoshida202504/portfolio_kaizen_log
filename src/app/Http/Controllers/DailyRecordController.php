@@ -20,7 +20,16 @@ class DailyRecordController extends Controller
     {
         $this->authorize('view', $record);
 
-        return view('records.show', compact('record'));
+        $record->loadCount('likes')->load([
+            'comments' => fn ($query) => $query->with('user')->oldest(),
+        ]);
+
+        $canInteract = auth()->id() !== $record->user_id;
+        $hasLiked = $canInteract && $record->likes()
+            ->where('user_id', auth()->id())
+            ->exists();
+
+        return view('records.show', compact('record', 'canInteract', 'hasLiked'));
     }
 
     public function edit(DailyRecord $record): View

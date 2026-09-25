@@ -11,6 +11,11 @@ class Comment extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $fillable = [
+        'daily_record_id',
+        'body',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
