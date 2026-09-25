@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
 use Illuminate\Support\Collection;
 
 class User extends Authenticatable
@@ -80,12 +78,8 @@ class User extends Authenticatable
 
     public function isMutuallyFollowing(User $user): bool
     {
-        return $this->following()
-            ->where('followed_id', $user->id)
-            ->exists()
-            && $user->following()
-                ->where('followed_id', $this->id)
-                ->exists();
+        return $this->isFollowing($user)
+            && $user->isFollowing($this);
     }
 
     public function isFollowing(User $user): bool

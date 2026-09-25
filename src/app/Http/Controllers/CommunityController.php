@@ -17,8 +17,7 @@ class CommunityController extends Controller
             ->whereHas('user')
             ->where('user_id', '!=', $user->id)
             ->visibleTo($user)
-            ->orderByDesc('record_date')
-            ->orderByDesc('created_at')
+            ->latestRecordFirst()
             ->get();
 
         return view('community.index', compact('dailyRecords'));
