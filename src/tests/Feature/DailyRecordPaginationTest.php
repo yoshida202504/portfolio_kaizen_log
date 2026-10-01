@@ -130,6 +130,8 @@ class DailyRecordPaginationTest extends TestCase
     {
         return collect(range(1, $count))
             ->map(function (int $number) use ($user, $prefix, $overrides): DailyRecord {
+                $createdAt = Carbon::parse('2026-09-25 12:00:00')->subMinutes($number - 1);
+
                 return DailyRecord::factory()
                     ->for($user)
                     ->create(array_merge([
@@ -138,6 +140,8 @@ class DailyRecordPaginationTest extends TestCase
                         'good_points' => '良かったことです。',
                         'improvement_points' => '改善点です。',
                         'improvement_strategy' => '改善策です。',
+                        'created_at' => $createdAt,
+                        'updated_at' => $createdAt,
                     ], $overrides));
             })
             ->all();
