@@ -1,18 +1,13 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>ユーザー登録完了</title>
-        <style>
-            body { max-width: 480px; margin: 40px auto; padding: 0 16px; font-family: sans-serif; line-height: 1.5; }
-            .button { display: inline-block; padding: 8px 16px; background: #2563eb; color: #fff; text-decoration: none; }
-        </style>
-    </head>
-    <body>
-        <h1>ユーザー登録が完了しました。</h1>
-        <p>アカウントの作成が完了し、現在はログイン済みです。日報を振り返り、次の行動につなげていきましょう。</p>
+@extends('layouts.guest')
+@section('title', '登録完了 | Kaizen Log')
 
-        <a class="button" href="{{ route('home') }}">自分の日報一覧へ</a>
-    </body>
-</html>
+@section('content')
+    <section class="guest-card">
+        <div class="complete-icon" aria-hidden="true">✓</div>
+        <h1>ユーザー登録が完了しました。</h1>
+        <p>アカウントの作成が完了し、現在はログイン済みです。今日の振り返りを、次の行動につなげていきましょう。</p>
+        <div class="form-actions" style="justify-content: center;">
+            <a class="button" href="{{ route('home') }}">自分の日報一覧へ</a>
+        </div>
+    </section>
+@endsection

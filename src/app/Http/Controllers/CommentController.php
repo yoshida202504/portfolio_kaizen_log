@@ -19,7 +19,7 @@ class CommentController extends Controller
             'body' => $request->validated('body'),
         ]);
 
-        return redirect()->route('records.show', $record);
+        return redirect()->route('records.show', $record)->withFragment('comments');
     }
 
     public function update(UpdateCommentRequest $request, Comment $comment): RedirectResponse
@@ -28,7 +28,7 @@ class CommentController extends Controller
 
         $comment->update($request->validated());
 
-        return redirect()->route('records.show', $comment->dailyRecord);
+        return redirect()->route('records.show', $comment->dailyRecord)->withFragment('comment-'.$comment->id);
     }
 
     public function destroy(Comment $comment): RedirectResponse
@@ -38,6 +38,6 @@ class CommentController extends Controller
         $record = $comment->dailyRecord;
         $comment->delete();
 
-        return redirect()->route('records.show', $record);
+        return redirect()->route('records.show', $record)->withFragment('comments');
     }
 }

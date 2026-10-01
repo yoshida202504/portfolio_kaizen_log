@@ -14,7 +14,7 @@ class HomeController extends Controller
 
         $dailyRecords = $user->dailyRecords()
             ->latestRecordFirst()
-            ->get();
+            ->paginate(10);
 
         return view('home.index', compact('dailyRecords'));
     }
@@ -38,7 +38,8 @@ class HomeController extends Controller
                 });
             })
             ->latestRecordFirst()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return view('home.index', compact('dailyRecords'));
     }

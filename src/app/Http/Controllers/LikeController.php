@@ -16,7 +16,7 @@ class LikeController extends Controller
             'daily_record_id' => $record->id,
         ]);
 
-        return redirect()->route('records.show', $record);
+        return redirect()->route('records.show', $record)->withFragment('like-section');
     }
 
     public function destroy(Request $request, DailyRecord $record): RedirectResponse
@@ -27,6 +27,6 @@ class LikeController extends Controller
             ->where('daily_record_id', $record->id)
             ->delete();
 
-        return redirect()->route('records.show', $record);
+        return redirect()->route('records.show', $record)->withFragment('like-section');
     }
 }

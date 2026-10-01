@@ -25,4 +25,11 @@ abstract class CommentBodyRequest extends FormRequest
             'body.max' => 'コメントは1000文字以内で入力してください。',
         ];
     }
+
+    protected function getRedirectUrl()
+    {
+        $record = $this->route('record') ?? $this->route('comment')->dailyRecord;
+
+        return route('records.show', $record).'#comments';
+    }
 }

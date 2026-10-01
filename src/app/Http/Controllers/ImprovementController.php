@@ -24,7 +24,7 @@ class ImprovementController extends Controller
 
         $record->update($request->validated());
 
-        return redirect()->route('records.show', $record);
+        return redirect()->route('records.show', $record)->with('success', '改善結果を保存しました。');
     }
 
     private function ensureImprovementInputIsAvailable(DailyRecord $record): void

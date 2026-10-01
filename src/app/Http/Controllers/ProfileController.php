@@ -20,7 +20,7 @@ class ProfileController extends Controller
     {
         $request->user()->update($request->validated());
 
-        return redirect()->route('mypage');
+        return redirect()->route('mypage')->with('success', 'プロフィールを更新しました。');
     }
 
     public function destroy(WithdrawAccountRequest $request): RedirectResponse

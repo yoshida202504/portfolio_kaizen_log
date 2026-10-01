@@ -18,8 +18,9 @@ class UserController extends Controller
             ? collect()
             : $user->dailyRecords()
                 ->visibleTo($currentUser)
+                ->withCount('likes')
                 ->latestRecordFirst()
-                ->get();
+                ->paginate(10);
 
         return view('users.show', compact('user', 'isOwnProfile', 'isFollowing', 'dailyRecords'));
     }

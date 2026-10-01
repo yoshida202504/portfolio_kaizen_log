@@ -28,7 +28,7 @@ class LikeTest extends TestCase
 
         $this->actingAs($viewer)
             ->post(route('records.like.store', $record))
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#like-section');
 
         $this->assertDatabaseHas('likes', [
             'user_id' => $viewer->id,
@@ -49,7 +49,7 @@ class LikeTest extends TestCase
 
         $this->actingAs($viewer)
             ->post(route('records.like.store', $record))
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#like-section');
 
         $this->assertDatabaseHas('likes', [
             'user_id' => $viewer->id,
@@ -106,7 +106,7 @@ class LikeTest extends TestCase
 
         $this->actingAs($viewer)
             ->delete(route('records.like.destroy', $record))
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#like-section');
 
         $this->assertDatabaseMissing('likes', [
             'user_id' => $viewer->id,
@@ -126,7 +126,7 @@ class LikeTest extends TestCase
 
         $this->actingAs($viewer)
             ->delete(route('records.like.destroy', $record))
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#like-section');
 
         $this->assertDatabaseHas('likes', [
             'user_id' => $otherUser->id,

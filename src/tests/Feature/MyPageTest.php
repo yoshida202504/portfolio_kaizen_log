@@ -18,7 +18,7 @@ class MyPageTest extends TestCase
         $this->get(route('mypage'))->assertRedirect(route('login'));
     }
 
-    public function test_my_page_displays_profile_and_daily_record_links(): void
+    public function test_my_page_displays_name_and_profile_edit_link(): void
     {
         $user = User::factory()->create([
             'name' => 'マイページ利用者',
@@ -30,16 +30,17 @@ class MyPageTest extends TestCase
             ->get(route('mypage'))
             ->assertOk()
             ->assertSee('マイページ利用者')
-            ->assertSee($user->email)
+            ->assertDontSee($user->email)
+            ->assertDontSee('回答しない')
             ->assertSee('プロフィールを編集する')
-            ->assertSee('自分の日報一覧を見る')
-            ->assertSee('日報を作成する');
+            ->assertDontSee('自分の日報一覧を見る');
     }
 
     public function test_my_page_displays_followed_users(): void
     {
         $user = User::factory()->create();
         $followedUser = User::factory()->create(['name' => 'フォロー中のユーザー']);
+        $unrelatedUser = User::factory()->create(['name' => '関係のないユーザー']);
         Follow::factory()->create([
             'follower_id' => $user->id,
             'followed_id' => $followedUser->id,
@@ -48,7 +49,27 @@ class MyPageTest extends TestCase
         $this->actingAs($user)
             ->get(route('mypage'))
             ->assertOk()
-            ->assertSee('フォロー中のユーザー');
+            ->assertSee('フォロー中')
+            ->assertSee('フォロー中のユーザー')
+            ->assertDontSee('関係のないユーザー');
+    }
+
+    public function test_my_page_displays_followers_without_unrelated_users(): void
+    {
+        $user = User::factory()->create();
+        $follower = User::factory()->create(['name' => 'フォロワーのユーザー']);
+        User::factory()->create(['name' => '別の関係ないユーザー']);
+        Follow::factory()->create([
+            'follower_id' => $follower->id,
+            'followed_id' => $user->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('mypage'))
+            ->assertOk()
+            ->assertSee('フォロワー')
+            ->assertSee('フォロワーのユーザー')
+            ->assertDontSee('別の関係ないユーザー');
     }
 
     public function test_my_page_displays_liked_public_daily_records(): void
