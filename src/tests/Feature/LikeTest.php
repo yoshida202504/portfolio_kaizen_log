@@ -28,7 +28,7 @@ class LikeTest extends TestCase
 
         $this->actingAs($viewer)
             ->post(route('records.like.store', $record))
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#like-section');
 
         $this->assertDatabaseHas('likes', [
             'user_id' => $viewer->id,
@@ -49,7 +49,7 @@ class LikeTest extends TestCase
 
         $this->actingAs($viewer)
             ->post(route('records.like.store', $record))
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#like-section');
 
         $this->assertDatabaseHas('likes', [
             'user_id' => $viewer->id,
@@ -106,12 +106,37 @@ class LikeTest extends TestCase
 
         $this->actingAs($viewer)
             ->delete(route('records.like.destroy', $record))
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#like-section');
 
-        $this->assertDatabaseMissing('likes', [
+        $this->assertSoftDeleted('likes', [
             'user_id' => $viewer->id,
             'daily_record_id' => $record->id,
         ]);
+        $this->assertSame(0, Like::query()->count());
+        $this->assertSame(0, $record->likes()->count());
+    }
+
+    public function test_user_can_restore_their_soft_deleted_like_without_creating_a_duplicate(): void
+    {
+        $viewer = User::factory()->create();
+        $record = $this->createRecord(User::factory()->create(), ['is_public' => true]);
+        $like = Like::factory()->create([
+            'user_id' => $viewer->id,
+            'daily_record_id' => $record->id,
+        ]);
+        $like->delete();
+
+        $this->actingAs($viewer)
+            ->post(route('records.like.store', $record))
+            ->assertRedirect(route('records.show', $record).'#like-section');
+
+        $this->assertDatabaseHas('likes', [
+            'id' => $like->id,
+            'user_id' => $viewer->id,
+            'daily_record_id' => $record->id,
+            'deleted_at' => null,
+        ]);
+        $this->assertSame(1, Like::withTrashed()->count());
     }
 
     public function test_unliking_without_own_like_does_not_remove_another_users_like(): void
@@ -126,7 +151,7 @@ class LikeTest extends TestCase
 
         $this->actingAs($viewer)
             ->delete(route('records.like.destroy', $record))
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#like-section');
 
         $this->assertDatabaseHas('likes', [
             'user_id' => $otherUser->id,

@@ -14,11 +14,12 @@ class CommunityController extends Controller
 
         $dailyRecords = DailyRecord::query()
             ->with('user')
+            ->withCount('likes')
             ->whereHas('user')
             ->where('user_id', '!=', $user->id)
             ->visibleTo($user)
             ->latestRecordFirst()
-            ->get();
+            ->paginate(10);
 
         return view('community.index', compact('dailyRecords'));
     }

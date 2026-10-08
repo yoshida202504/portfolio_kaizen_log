@@ -25,6 +25,7 @@ class DailyRecordFactory extends Factory
             'good_points' => fake()->paragraph(),
             'improvement_points' => fake()->paragraph(),
             'improvement_strategy' => fake()->paragraph(),
+            'expected_result' => fake()->sentence(),
             'improvement_result' => fake()->optional()->paragraph(),
             'improvement_rate' => fake()->optional()->randomElement([0, 20, 40, 60, 80, 100]),
             'is_public' => fake()->boolean(),

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -14,9 +15,12 @@ class HomeController extends Controller
 
         $dailyRecords = $user->dailyRecords()
             ->latestRecordFirst()
-            ->get();
+            ->paginate(10);
 
-        return view('home.index', compact('dailyRecords'));
+        return view('home.index', [
+            'dailyRecords' => $dailyRecords,
+            'pendingImprovementRecords' => $this->pendingImprovementRecords($user),
+        ]);
     }
 
     public function search(Request $request): View
@@ -38,8 +42,19 @@ class HomeController extends Controller
                 });
             })
             ->latestRecordFirst()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('home.index', compact('dailyRecords'));
+        return view('home.index', [
+            'dailyRecords' => $dailyRecords,
+            'pendingImprovementRecords' => $this->pendingImprovementRecords($user),
+        ]);
+    }
+
+    private function pendingImprovementRecords(User $user)
+    {
+        return $user->pendingImprovementRecords()
+            ->latest('created_at')
+            ->get();
     }
 }

@@ -227,6 +227,7 @@ class DailyRecordAuthorizationTest extends TestCase
             'good_points' => '認可テストで良かったことです。',
             'improvement_points' => '認可テストの改善点です。',
             'improvement_strategy' => '認可テストの改善策です。',
+            'expected_result' => '認可テストで想定する結果です。',
             'is_public' => false,
         ], $overrides);
     }

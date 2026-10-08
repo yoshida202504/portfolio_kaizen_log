@@ -12,11 +12,15 @@ class LikeController extends Controller
     {
         $this->authorizeOtherUserRecordInteraction($request, $record);
 
-        $request->user()->likes()->firstOrCreate([
+        $like = $request->user()->likes()->withTrashed()->firstOrCreate([
             'daily_record_id' => $record->id,
         ]);
 
-        return redirect()->route('records.show', $record);
+        if ($like->trashed()) {
+            $like->restore();
+        }
+
+        return redirect()->route('records.show', $record)->withFragment('like-section');
     }
 
     public function destroy(Request $request, DailyRecord $record): RedirectResponse
@@ -25,8 +29,8 @@ class LikeController extends Controller
 
         $request->user()->likes()
             ->where('daily_record_id', $record->id)
-            ->delete();
+            ->first()?->delete();
 
-        return redirect()->route('records.show', $record);
+        return redirect()->route('records.show', $record)->withFragment('like-section');
     }
 }

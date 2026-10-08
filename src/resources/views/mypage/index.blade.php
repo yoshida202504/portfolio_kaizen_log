@@ -1,90 +1,75 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>マイページ</title>
-        <style>
-            body { max-width: 720px; margin: 40px auto; padding: 0 16px; font-family: sans-serif; line-height: 1.5; }
-            section { margin: 24px 0; padding: 16px; border: 1px solid #d1d5db; }
-            .record, .user { margin: 12px 0; padding: 12px; border: 1px solid #e5e7eb; }
-            svg { display: block; max-width: 100%; height: auto; margin-top: 16px; border: 1px solid #e5e7eb; }
-        </style>
-    </head>
-    <body>
-        <h1>マイページ</h1>
+@extends('layouts.app')
+@section('title', 'マイページ | Kaizen Log')
 
-        <section>
-            <h2>プロフィール</h2>
-            <p>ユーザー名：{{ $user->name }}</p>
-            <p>メールアドレス：{{ $user->email }}</p>
-            @if (! is_null($user->age))
-                <p>年齢：{{ $user->age }}</p>
-            @endif
-            <p>性別：{{ $user->gender }}</p>
-            <a href="{{ route('profile.edit') }}">プロフィールを編集する</a>
+@section('content')
+    <header class="page-header">
+        <div><p class="eyebrow">MY GROWTH</p><h1>マイページ</h1><p class="page-lead">自分の記録と、小さな変化を振り返りましょう。</p></div>
+    </header>
+
+    <div class="mypage-content">
+        <section class="card">
+            <h2 class="panel-title">プロフィール</h2>
+            <div class="profile-summary">
+                <strong>{{ $user->name }}</strong>
+                <a class="button-secondary" href="{{ route('profile.edit') }}">プロフィールを編集する</a>
+            </div>
         </section>
 
-        <section>
-            <h2>自分の日報</h2>
-            <p><a href="{{ route('home') }}">自分の日報一覧を見る</a></p>
-            <p><a href="{{ route('records.create') }}">日報を作成する</a></p>
+        <section class="mypage-improvement-summary" aria-label="改善の要約">
+            <article class="summary-card">
+                <span>今月の改善行動数</span>
+                <strong>{{ $monthlyImprovementActionCount }}件</strong>
+                <p>A〜Cとして実施した改善策</p>
+            </article>
+            <article class="summary-card">
+                <span>未振り返り</span>
+                <strong>{{ $pendingImprovementCount }}件</strong>
+                <p>入力期限が近い日報</p>
+            </article>
+            <a class="summary-card summary-card-link" href="{{ route('improvement-records.index') }}">
+                <span>改善記録</span>
+                <strong>振り返る</strong>
+                <p>週ごとの実施数と評価を見る</p>
+            </a>
         </section>
 
-        <section>
-            <h2>フォロー中のユーザー</h2>
+        <section class="card relationship-card" aria-label="いいねとフォローの情報">
+            <div class="relationship-tabs" role="tablist" aria-label="いいねとフォローの表示を切り替える">
+                <button id="liked-records-tab" class="relationship-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="liked-records-panel">いいねの日報</button>
+                <button id="following-tab" class="relationship-tab" type="button" role="tab" aria-selected="false" aria-controls="following-panel" tabindex="-1">フォロー中</button>
+                <button id="followers-tab" class="relationship-tab" type="button" role="tab" aria-selected="false" aria-controls="followers-panel" tabindex="-1">フォロワー</button>
+            </div>
 
-            @forelse ($following as $follow)
-                <article class="user">
-                    <a href="{{ route('users.show', $follow->followed) }}">{{ $follow->followed->name }}</a>
-                </article>
-            @empty
-                <p>フォロー中のユーザーはいません。</p>
-            @endforelse
+            <div id="liked-records-panel" class="relationship-panel" role="tabpanel" tabindex="0" aria-labelledby="liked-records-tab">
+                <div class="record-list">
+                    @forelse ($likedRecords as $record)
+                        <article class="record-card"><div class="record-date">{{ $record->record_date }}</div><div><h3>{{ $record->actions }}</h3><p>投稿者：{{ $record->user->name }}</p></div><a href="{{ route('records.show', $record) }}">詳細を見る</a></article>
+                    @empty
+                        <p class="empty-state">いいねした日報はありません。</p>
+                    @endforelse
+                </div>
+            </div>
+
+            <div id="following-panel" class="relationship-panel" role="tabpanel" tabindex="0" aria-labelledby="following-tab" hidden>
+                <div class="following-list">
+                    @forelse ($following as $follow)
+                        <a href="{{ route('users.show', $follow->followed) }}">{{ $follow->followed->name }}</a>
+                    @empty
+                        <p class="empty-state">フォロー中のユーザーはいません。</p>
+                    @endforelse
+                </div>
+            </div>
+
+            <div id="followers-panel" class="relationship-panel" role="tabpanel" tabindex="0" aria-labelledby="followers-tab" hidden>
+                <div class="following-list">
+                    @forelse ($followers as $follow)
+                        <a href="{{ route('users.show', $follow->follower) }}">{{ $follow->follower->name }}</a>
+                    @empty
+                        <p class="empty-state">フォロワーはいません。</p>
+                    @endforelse
+                </div>
+            </div>
         </section>
 
-        <section>
-            <h2>いいねした日報</h2>
-
-            @forelse ($likedRecords as $record)
-                <article class="record">
-                    <p>投稿者：{{ $record->user->name }}</p>
-                    <p>日付：{{ $record->record_date }}</p>
-                    <p>今日やったこと：{{ $record->actions }}</p>
-                    <a href="{{ route('records.show', $record) }}">詳細を見る</a>
-                </article>
-            @empty
-                <p>現在閲覧できる、いいねした日報はありません。</p>
-            @endforelse
-        </section>
-
-        <section>
-            <h2>改善率の推移</h2>
-
-            @if ($chartPoints->isNotEmpty())
-                <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" role="img" aria-label="改善率の推移グラフ">
-                    <line x1="{{ $chartPadding }}" y1="{{ $chartPadding }}" x2="{{ $chartPadding }}" y2="{{ $chartHeight - $chartPadding }}" stroke="#6b7280" />
-                    <line x1="{{ $chartPadding }}" y1="{{ $chartHeight - $chartPadding }}" x2="{{ $chartWidth - $chartPadding }}" y2="{{ $chartHeight - $chartPadding }}" stroke="#6b7280" />
-                    <text x="4" y="{{ $chartPadding + 4 }}" font-size="12">100%</text>
-                    <text x="16" y="{{ $chartHeight - $chartPadding + 4 }}" font-size="12">0%</text>
-                    <polyline fill="none" stroke="#2563eb" stroke-width="3" points="{{ $chartPoints->map(fn ($point) => $point['x'] . ',' . $point['y'])->implode(' ') }}" />
-                    @foreach ($chartPoints as $point)
-                        <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4" fill="#2563eb" />
-                        <text x="{{ $point['x'] }}" y="{{ $chartHeight - 12 }}" text-anchor="middle" font-size="11">{{ $point['record_date'] }}</text>
-                        <text x="{{ $point['x'] }}" y="{{ $point['y'] - 8 }}" text-anchor="middle" font-size="11">{{ $point['rate'] }}%</text>
-                    @endforeach
-                </svg>
-
-                <ul>
-                    @foreach ($improvementRecords as $record)
-                        <li>{{ $record->record_date }}：{{ $record->improvement_rate }}%</li>
-                    @endforeach
-                </ul>
-            @else
-                <p>改善率が記録された日報はまだありません。</p>
-            @endif
-        </section>
-
-        <a href="{{ route('home') }}">自分の日報一覧へ戻る</a>
-    </body>
-</html>
+    </div>
+@endsection

@@ -166,6 +166,8 @@ class DailyRecordImprovementTest extends TestCase
         $dailyRecord = $this->createDailyRecord($owner, '2026-09-19', [
             'improvement_result' => '期限切れ前に記録した改善結果です。',
             'improvement_rate' => 40,
+            'created_at' => '2026-09-19 09:00:00',
+            'updated_at' => '2026-09-19 09:00:00',
         ]);
 
         $this->actingAs($owner)

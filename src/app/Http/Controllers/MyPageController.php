@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DailyRecord;
+use App\Models\ImprovementRecord;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -18,6 +19,12 @@ class MyPageController extends Controller
             ->latest('created_at')
             ->get();
 
+        $followers = $user->followers()
+            ->with('follower')
+            ->whereHas('follower')
+            ->latest('created_at')
+            ->get();
+
         $likedRecords = DailyRecord::query()
             ->with('user')
             ->whereHas('user')
@@ -27,39 +34,23 @@ class MyPageController extends Controller
             ->latestRecordFirst()
             ->get();
 
-        $improvementRecords = $user->dailyRecords()
-            ->whereNotNull('improvement_rate')
-            ->orderBy('record_date')
-            ->orderBy('created_at')
-            ->get();
+        $currentMonthStart = now(config('app.timezone'))->startOfMonth()->toDateString();
+        $currentMonthEnd = now(config('app.timezone'))->endOfMonth()->toDateString();
+        $monthlyImprovementActionCount = ImprovementRecord::query()
+            ->where('execution_status', ImprovementRecord::STATUS_EXECUTED)
+            ->whereIn('result_evaluation', ImprovementRecord::EVALUATIONS)
+            ->whereBetween('executed_at', [$currentMonthStart, $currentMonthEnd])
+            ->whereHas('dailyRecord', fn ($query) => $query->where('user_id', $user->id))
+            ->count();
+        $pendingImprovementCount = $user->pendingImprovementRecords()->count();
 
-        $chartWidth = 600;
-        $chartHeight = 240;
-        $chartPadding = 40;
-        $chartPoints = $improvementRecords->values()->map(function ($record, int $index) use ($improvementRecords, $chartWidth, $chartHeight, $chartPadding) {
-            $count = $improvementRecords->count();
-            $x = $count === 1
-                ? $chartWidth / 2
-                : $chartPadding + ($index * (($chartWidth - ($chartPadding * 2)) / ($count - 1)));
-            $y = $chartPadding + ((100 - (int) $record->improvement_rate) / 100 * ($chartHeight - ($chartPadding * 2)));
-
-            return [
-                'x' => round($x, 2),
-                'y' => round($y, 2),
-                'rate' => (int) $record->improvement_rate,
-                'record_date' => $record->record_date,
-            ];
-        });
-
-        return view('mypage.index', compact(
-            'user',
-            'following',
-            'likedRecords',
-            'improvementRecords',
-            'chartPoints',
-            'chartWidth',
-            'chartHeight',
-            'chartPadding',
-        ));
+        return view('mypage.index', [
+            'user' => $user,
+            'following' => $following,
+            'followers' => $followers,
+            'likedRecords' => $likedRecords,
+            'monthlyImprovementActionCount' => $monthlyImprovementActionCount,
+            'pendingImprovementCount' => $pendingImprovementCount,
+        ]);
     }
 }

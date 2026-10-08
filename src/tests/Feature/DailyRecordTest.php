@@ -21,6 +21,7 @@ class DailyRecordTest extends TestCase
             'good_points' => '良かったことです。',
             'improvement_points' => '改善点です。',
             'improvement_strategy' => '改善策です。',
+            'expected_result' => '想定する結果です。',
             'is_public' => false,
         ];
 
@@ -36,6 +37,7 @@ class DailyRecordTest extends TestCase
             'good_points' => $dailyRecordData['good_points'],
             'improvement_points' => $dailyRecordData['improvement_points'],
             'improvement_strategy' => $dailyRecordData['improvement_strategy'],
+            'expected_result' => $dailyRecordData['expected_result'],
             'is_public' => false,
         ]);
     }
@@ -84,6 +86,7 @@ class DailyRecordTest extends TestCase
             'good_points' => '更新後の良かったことです。',
             'improvement_points' => '更新後の改善点です。',
             'improvement_strategy' => '更新後の改善策です。',
+            'expected_result' => '更新後に想定する結果です。',
             'is_public' => true,
         ];
 
@@ -99,6 +102,7 @@ class DailyRecordTest extends TestCase
             'good_points' => $updatedData['good_points'],
             'improvement_points' => $updatedData['improvement_points'],
             'improvement_strategy' => $updatedData['improvement_strategy'],
+            'expected_result' => $updatedData['expected_result'],
             'is_public' => true,
         ]);
     }
@@ -107,12 +111,19 @@ class DailyRecordTest extends TestCase
     {
         $user = User::factory()->create();
         $dailyRecord = DailyRecord::factory()->for($user)->create();
+        $dailyRecord->improvementRecord()->create([
+            'execution_status' => 'executed',
+            'result_evaluation' => 'B',
+            'executed_at' => now()->toDateString(),
+            'actual_result' => '改善結果です。',
+        ]);
 
         $response = $this->actingAs($user)
             ->delete(route('records.destroy', $dailyRecord));
 
         $response->assertRedirect(route('home'));
         $this->assertSoftDeleted('daily_records', ['id' => $dailyRecord->id]);
+        $this->assertSoftDeleted('improvement_records', ['daily_record_id' => $dailyRecord->id]);
         $this->assertNull(DailyRecord::find($dailyRecord->id));
     }
 }

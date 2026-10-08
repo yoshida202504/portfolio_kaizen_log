@@ -1,67 +1,58 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>ユーザー詳細</title>
-        <style>
-            body { max-width: 720px; margin: 40px auto; padding: 0 16px; font-family: sans-serif; line-height: 1.5; }
-            .profile, .record { margin: 16px 0; padding: 12px 16px; border: 1px solid #d1d5db; }
-            button { padding: 8px 16px; border: 0; background: #2563eb; color: #fff; cursor: pointer; }
-            img { display: block; margin-top: 12px; }
-        </style>
-    </head>
-    <body>
-        <h1>ユーザー詳細</h1>
+@extends('layouts.app')
+@section('title', 'ユーザー詳細 | Kaizen Log')
 
-        <section class="profile">
-            <p>ユーザー名：{{ $user->name }}</p>
-            @if (! is_null($user->age))
-                <p>年齢：{{ $user->age }}</p>
-            @endif
-            <p>性別：{{ $user->gender }}</p>
+@section('content')
+    <header class="page-header">
+        <div><p class="eyebrow">USER PROFILE</p><h1>ユーザー詳細</h1><p class="page-lead">公開されている記録と、日々の工夫を確認できます。</p></div>
+        <a class="button-secondary" href="{{ route('community.index') }}">Communityへ戻る</a>
+    </header>
 
+    <section class="card">
+        <div class="profile-grid">
+            <div class="profile-item"><span>ユーザー名</span><strong>{{ $user->name }}</strong></div>
+            @if (! is_null($user->age))<div class="profile-item"><span>年齢</span><strong>{{ $user->age }}</strong></div>@endif
+            <div class="profile-item"><span>性別</span><strong>{{ $user->gender }}</strong></div>
+        </div>
+        <div class="form-actions">
             @if ($isOwnProfile)
-                <p>自分のプロフィールです。自分の日報は<a href="{{ route('home') }}">自分の日報一覧</a>で確認できます。</p>
+                <p>自分のプロフィールです。日報は<a href="{{ route('home') }}">自分の日報一覧</a>で確認できます。</p>
             @elseif ($isFollowing)
-                <p>フォロー中です。</p>
-                <form method="POST" action="{{ route('users.follow.destroy', $user) }}">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit">フォローを解除する</button>
-                </form>
+                <form method="POST" action="{{ route('users.follow.destroy', $user) }}">@csrf @method('DELETE') <button class="button-secondary" type="submit">フォローを解除する</button></form>
             @else
-                <p>フォローしていません。</p>
-                <form method="POST" action="{{ route('users.follow.store', $user) }}">
-                    @csrf
-                    <button type="submit">フォローする</button>
-                </form>
+                <form method="POST" action="{{ route('users.follow.store', $user) }}">@csrf <button class="button" type="submit">フォローする</button></form>
+            @endif
+        </div>
+    </section>
+
+    @if (! $isOwnProfile)
+        <section class="page-section" style="margin-top: 28px;">
+            <h2 class="panel-title">{{ $user->name }}さんの閲覧可能な日報</h2>
+            <div class="record-list">
+                @forelse ($dailyRecords as $dailyRecord)
+                    <article id="record-{{ $dailyRecord->id }}" class="record-card">
+                        <div class="record-date">{{ $dailyRecord->record_date }}</div>
+                        <div><h3>{{ $dailyRecord->actions }}</h3><p>改善策：{{ $dailyRecord->improvement_strategy }}</p>@if ($dailyRecord->image_path)<img class="detail-image" src="{{ asset('storage/' . $dailyRecord->image_path) }}" alt="日報画像">@endif</div>
+                        <div class="record-actions"><span class="status {{ $dailyRecord->is_public ? 'status-public' : 'status-private' }}">{{ $dailyRecord->is_public ? '公開' : '非公開' }}</span><a href="{{ route('records.show', ['record' => $dailyRecord, 'source' => 'user', 'user' => $user->id, 'page' => $dailyRecords->currentPage()]) }}">詳細を見る</a><span class="list-like-count" aria-label="いいね {{ $dailyRecord->likes_count }}件"><span aria-hidden="true">♡</span> {{ $dailyRecord->likes_count }}</span></div>
+                    </article>
+                @empty
+                    <p class="empty-state">閲覧できる日報はまだありません。</p>
+                @endforelse
+            </div>
+            @if ($dailyRecords->hasPages())
+                <nav class="pagination" aria-label="{{ $user->name }}さんの日報一覧のページ移動">
+                    @if ($dailyRecords->onFirstPage())
+                        <span class="pagination-link is-disabled" aria-disabled="true">前へ</span>
+                    @else
+                        <a class="pagination-link" href="{{ $dailyRecords->previousPageUrl() }}" rel="prev">前へ</a>
+                    @endif
+                    <span class="pagination-status" aria-current="page">{{ $dailyRecords->currentPage() }} / {{ $dailyRecords->lastPage() }} ページ</span>
+                    @if ($dailyRecords->hasMorePages())
+                        <a class="pagination-link" href="{{ $dailyRecords->nextPageUrl() }}" rel="next">次へ</a>
+                    @else
+                        <span class="pagination-link is-disabled" aria-disabled="true">次へ</span>
+                    @endif
+                </nav>
             @endif
         </section>
-
-        @if (! $isOwnProfile)
-            <h2>{{ $user->name }}さんの閲覧可能な日報</h2>
-
-            @forelse ($dailyRecords as $dailyRecord)
-                <article class="record">
-                    <p>日付：{{ $dailyRecord->record_date }}</p>
-                    <p>今日やったこと：{{ $dailyRecord->actions }}</p>
-                    <p>良かったこと：{{ $dailyRecord->good_points }}</p>
-                    <p>改善点：{{ $dailyRecord->improvement_points }}</p>
-                    <p>改善策：{{ $dailyRecord->improvement_strategy }}</p>
-                    <p>公開設定：{{ $dailyRecord->is_public ? '公開' : '非公開' }}</p>
-
-                    @if ($dailyRecord->image_path)
-                        <img src="{{ asset('storage/' . $dailyRecord->image_path) }}" alt="日報画像" width="320">
-                    @endif
-
-                    <a href="{{ route('records.show', $dailyRecord) }}">詳細を見る</a>
-                </article>
-            @empty
-                <p>閲覧できる日報はまだありません。</p>
-            @endforelse
-        @endif
-
-        <a href="{{ route('community.index') }}">他のユーザーの日報へ戻る</a>
-    </body>
-</html>
+    @endif
+@endsection

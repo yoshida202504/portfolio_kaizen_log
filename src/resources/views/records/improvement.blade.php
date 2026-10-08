@@ -1,57 +1,38 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>改善結果を記録する</title>
-        <style>
-            body { max-width: 640px; margin: 40px auto; padding: 0 16px; font-family: sans-serif; line-height: 1.5; }
-            label { display: block; margin-top: 16px; font-weight: bold; }
-            textarea, select { box-sizing: border-box; width: 100%; margin-top: 4px; padding: 8px; }
-            textarea { min-height: 120px; }
-            .record { margin: 16px 0; padding: 12px 16px; border: 1px solid #d1d5db; }
-            .errors { padding: 12px 16px; color: #b91c1c; background: #fef2f2; }
-            button { margin-top: 24px; padding: 8px 16px; border: 0; background: #2563eb; color: #fff; cursor: pointer; }
-        </style>
-    </head>
-    <body>
-        <h1>改善結果を記録する</h1>
+@extends('layouts.app')
 
-        <section class="record">
-            <p>日付：{{ $record->record_date }}</p>
-            <p>改善策：{{ $record->improvement_strategy }}</p>
-        </section>
+@section('title', '改善結果 | Kaizen Log')
 
+@section('content')
+    <header class="page-header">
+        <div><p class="eyebrow">LOOK BACK, MOVE FORWARD</p><h1>改善結果を記録する</h1><p class="page-lead">試した行動がどう変化につながったかを振り返ります。</p></div>
+        <a class="button-secondary" href="{{ route('records.show', $record) }}">日報詳細へ戻る</a>
+    </header>
+
+    <section class="card form-card">
+        <div class="profile-item"><span>{{ $record->record_date }} の改善策</span><strong>{{ $record->improvement_strategy }}</strong></div>
+        <div class="profile-item"><span>想定する結果</span><strong>{{ $record->expected_result ?: '既存の日報には想定結果がありません。日報編集で追加できます。' }}</strong></div>
         @if ($errors->any())
-            <div class="errors">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
+            <div class="error-summary" role="alert"><p>入力内容を確認してください。</p><ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
         @endif
-
         <form method="POST" action="{{ route('records.improvement.update', $record) }}">
             @csrf
             @method('PATCH')
-
-            <label for="improvement_result">改善結果</label>
-            <textarea id="improvement_result" name="improvement_result">{{ old('improvement_result', $record->improvement_result) }}</textarea>
-
-            <label for="improvement_rate">改善率</label>
-            <select id="improvement_rate" name="improvement_rate">
-                <option value="">選択しない</option>
-                @foreach ([0, 20, 40, 60, 80, 100] as $rate)
-                    <option value="{{ $rate }}" @selected((string) old('improvement_rate', $record->improvement_rate) === (string) $rate)>
-                        {{ $rate }}%
-                    </option>
-                @endforeach
-            </select>
-
-            <button type="submit">保存する</button>
+            @php($improvementRecord = $record->improvementRecord)
+            <fieldset>
+                <legend>評価<span class="field-required">必須</span></legend>
+                <p class="form-help">A〜Cは改善策を実施した結果、Dは実施できなかった場合に選択します。</p>
+                <div class="choice-group">
+                    @foreach (['A' => '想定より良い結果が出た', 'B' => '想定どおりの結果が出た', 'C' => '想定より結果が良くなかった', 'D' => '実施できなかった'] as $value => $label)
+                        <label><input name="evaluation" type="radio" value="{{ $value }}" @checked(old('evaluation', $improvementRecord?->evaluation) === $value)> {{ $value }}：{{ $label }}</label>
+                    @endforeach
+                </div>
+                @error('evaluation')<p class="field-error">{{ $message }}</p>@enderror
+            </fieldset>
+            <div class="form-field"><label for="executed_at">実施日<span class="field-required">A〜Cの場合は必須</span></label><input id="executed_at" name="executed_at" type="date" value="{{ old('executed_at', $improvementRecord?->executed_at?->toDateString()) }}" max="{{ now()->toDateString() }}" aria-invalid="{{ $errors->has('executed_at') ? 'true' : 'false' }}" aria-describedby="@error('executed_at') executed-at-error @enderror">@error('executed_at')<p id="executed-at-error" class="field-error">{{ $message }}</p>@enderror</div>
+            <div class="form-field"><label for="actual_result">実際の結果<span class="field-required">A〜Cの場合は必須</span></label><textarea id="actual_result" name="actual_result" maxlength="1000" placeholder="実行してみて分かったこと・次に活かしたいこと" aria-invalid="{{ $errors->has('actual_result') ? 'true' : 'false' }}" aria-describedby="@error('actual_result') actual-result-error @enderror">{{ old('actual_result', $improvementRecord?->actual_result) }}</textarea>@error('actual_result')<p id="actual-result-error" class="field-error">{{ $message }}</p>@enderror</div>
+            <div class="form-field"><label for="not_executed_reason">未実施の理由<span class="field-required">Dの場合は必須</span></label><select id="not_executed_reason" name="not_executed_reason" aria-invalid="{{ $errors->has('not_executed_reason') ? 'true' : 'false' }}" aria-describedby="@error('not_executed_reason') not-executed-reason-error @enderror"><option value="">選択してください</option><option value="forgot" @selected(old('not_executed_reason', $improvementRecord?->not_executed_reason) === 'forgot')>忘れた</option><option value="no_time" @selected(old('not_executed_reason', $improvementRecord?->not_executed_reason) === 'no_time')>時間がなかった</option><option value="unnecessary" @selected(old('not_executed_reason', $improvementRecord?->not_executed_reason) === 'unnecessary')>不要になった</option><option value="other" @selected(old('not_executed_reason', $improvementRecord?->not_executed_reason) === 'other')>その他</option></select>@error('not_executed_reason')<p id="not-executed-reason-error" class="field-error">{{ $message }}</p>@enderror</div>
+            <div class="form-field"><label for="not_executed_note">その他の理由<span class="field-required">「その他」の場合は必須</span></label><textarea id="not_executed_note" name="not_executed_note" maxlength="1000" placeholder="実施できなかった事情を記録します" aria-invalid="{{ $errors->has('not_executed_note') ? 'true' : 'false' }}" aria-describedby="@error('not_executed_note') not-executed-note-error @enderror">{{ old('not_executed_note', $improvementRecord?->not_executed_note) }}</textarea>@error('not_executed_note')<p id="not-executed-note-error" class="field-error">{{ $message }}</p>@enderror</div>
+            <div class="form-actions"><button class="button" type="submit">保存する</button></div>
         </form>
-
-        <p><a href="{{ route('records.show', $record) }}">日報詳細へ戻る</a></p>
-    </body>
-</html>
+    </section>
+@endsection

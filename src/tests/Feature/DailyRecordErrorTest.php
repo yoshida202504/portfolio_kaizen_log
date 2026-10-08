@@ -111,6 +111,7 @@ class DailyRecordErrorTest extends TestCase
             'good_points' => 'エラーケース確認で良かったことです。',
             'improvement_points' => 'エラーケース確認の改善点です。',
             'improvement_strategy' => 'エラーケース確認の改善策です。',
+            'expected_result' => 'エラーケース確認で想定する結果です。',
             'is_public' => false,
         ], $overrides);
     }

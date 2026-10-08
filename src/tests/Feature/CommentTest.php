@@ -28,7 +28,7 @@ class CommentTest extends TestCase
 
         $this->actingAs($commenter)
             ->post(route('records.comments.store', $record), ['body' => '公開日報へのコメントです。'])
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#comments');
 
         $this->assertDatabaseHas('comments', [
             'user_id' => $commenter->id,
@@ -46,7 +46,7 @@ class CommentTest extends TestCase
 
         $this->actingAs($commenter)
             ->post(route('records.comments.store', $record), ['body' => '相互フォロー相手へのコメントです。'])
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#comments');
 
         $this->assertDatabaseHas('comments', [
             'user_id' => $commenter->id,
@@ -86,7 +86,7 @@ class CommentTest extends TestCase
         $this->actingAs($commenter)
             ->from(route('records.show', $record))
             ->post(route('records.comments.store', $record), ['body' => ''])
-            ->assertRedirect(route('records.show', $record))
+            ->assertRedirect(route('records.show', $record).'#comments')
             ->assertSessionHasErrors('body');
 
         $this->assertDatabaseCount('comments', 0);
@@ -100,7 +100,7 @@ class CommentTest extends TestCase
 
         $this->actingAs($commenter)
             ->post(route('records.comments.store', $record), ['body' => $body])
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#comments');
 
         $this->assertDatabaseHas('comments', ['daily_record_id' => $record->id, 'body' => $body]);
     }
@@ -113,10 +113,60 @@ class CommentTest extends TestCase
         $this->actingAs($commenter)
             ->from(route('records.show', $record))
             ->post(route('records.comments.store', $record), ['body' => str_repeat('あ', 1001)])
-            ->assertRedirect(route('records.show', $record))
+            ->assertRedirect(route('records.show', $record).'#comments')
             ->assertSessionHasErrors('body');
 
         $this->assertDatabaseCount('comments', 0);
+    }
+
+    public function test_harmful_comment_is_rejected_without_being_saved(): void
+    {
+        $commenter = User::factory()->create();
+        $record = $this->createRecord(User::factory()->create(), ['is_public' => true]);
+
+        $this->actingAs($commenter)
+            ->from(route('records.show', $record))
+            ->post(route('records.comments.store', $record), ['body' => '死ね'])
+            ->assertRedirect(route('records.show', $record).'#comments')
+            ->assertSessionHasErrors([
+                'body' => 'このコメントは、ユーザーを傷つける可能性があるため投稿できません。',
+            ]);
+
+        $this->assertDatabaseCount('comments', 0);
+    }
+
+    public function test_harmful_comment_update_is_rejected_without_changing_the_existing_comment(): void
+    {
+        $commenter = User::factory()->create();
+        $record = $this->createRecord(User::factory()->create(), ['is_public' => true]);
+        $comment = $this->createComment($commenter, $record, '応援しています。');
+
+        $this->actingAs($commenter)
+            ->patch(route('comments.update', $comment), ['body' => '消 え ろ'])
+            ->assertRedirect(route('records.show', $record).'#comments')
+            ->assertSessionHasErrors('body');
+
+        $this->assertDatabaseHas('comments', [
+            'id' => $comment->id,
+            'body' => '応援しています。',
+        ]);
+    }
+
+    public function test_comment_update_validation_error_redirects_to_the_comments_section(): void
+    {
+        $commenter = User::factory()->create();
+        $record = $this->createRecord(User::factory()->create(), ['is_public' => true]);
+        $comment = $this->createComment($commenter, $record, '更新前のコメントです。');
+
+        $this->actingAs($commenter)
+            ->patch(route('comments.update', $comment), ['body' => ''])
+            ->assertRedirect(route('records.show', $record).'#comments')
+            ->assertSessionHasErrors('body');
+
+        $this->assertDatabaseHas('comments', [
+            'id' => $comment->id,
+            'body' => '更新前のコメントです。',
+        ]);
     }
 
     public function test_comment_author_can_update_their_comment(): void
@@ -127,7 +177,7 @@ class CommentTest extends TestCase
 
         $this->actingAs($commenter)
             ->patch(route('comments.update', $comment), ['body' => '更新後のコメントです。'])
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#comment-'.$comment->id);
 
         $this->assertDatabaseHas('comments', [
             'id' => $comment->id,
@@ -143,7 +193,7 @@ class CommentTest extends TestCase
 
         $this->actingAs($commenter)
             ->delete(route('comments.destroy', $comment))
-            ->assertRedirect(route('records.show', $record));
+            ->assertRedirect(route('records.show', $record).'#comments');
 
         $this->assertSoftDeleted('comments', ['id' => $comment->id]);
     }
