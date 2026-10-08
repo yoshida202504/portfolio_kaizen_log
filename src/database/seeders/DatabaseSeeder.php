@@ -2,6 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Comment;
+use App\Models\DailyRecord;
+use App\Models\Follow;
+use App\Models\Like;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,11 +19,33 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $users = User::factory(5)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        $dailyRecords = $users->flatMap(fn (User $user) => DailyRecord::factory(2)->create([
+            'user_id' => $user->id,
+        ]));
+
+        foreach ($dailyRecords as $dailyRecord) {
+            $otherUser = $users->first(
+                fn (User $user) => $user->id != $dailyRecord->user_id,
+            );
+
+            Comment::factory()->create([
+                'user_id' => $otherUser->id,
+                'daily_record_id' => $dailyRecord->id,
+            ]);
+
+            Like::factory()->create([
+                'user_id' => $otherUser->id,
+                'daily_record_id' => $dailyRecord->id,
+            ]);
+        }
+
+        foreach ($users as $index => $user) {
+            Follow::factory()->create([
+                'follower_id' => $user->id,
+                'followed_id' => $users[($index + 1) % $users->count()]->id,
+            ]);
+        }
     }
 }

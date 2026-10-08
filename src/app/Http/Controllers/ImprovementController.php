@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\UpdateImprovementRequest;
+use App\Models\DailyRecord;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+
+class ImprovementController extends Controller
+{
+    public function edit(DailyRecord $record): View
+    {
+        $this->authorize('update', $record);
+        $this->ensureImprovementInputIsAvailable($record);
+
+        $record->load('improvementRecord');
+
+        return view('records.improvement', compact('record'));
+    }
+
+    public function update(UpdateImprovementRequest $request, DailyRecord $record): RedirectResponse
+    {
+        $this->authorize('update', $record);
+        $this->ensureImprovementInputIsAvailable($record);
+
+        if ($request->usesLegacyPayload()) {
+            $record->update($request->legacyDailyRecordAttributes());
+        } else {
+            $record->improvementRecord()->updateOrCreate(
+                [],
+                $request->improvementRecordAttributes(),
+            );
+        }
+
+        return redirect()->route('records.show', $record)->with('success', '改善結果を保存しました。');
+    }
+
+    private function ensureImprovementInputIsAvailable(DailyRecord $record): void
+    {
+        abort_unless(
+            $record->isImprovementInputAvailable(),
+            403,
+            '改善結果の入力期限を過ぎています。',
+        );
+    }
+}
