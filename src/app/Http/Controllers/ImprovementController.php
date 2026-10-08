@@ -14,6 +14,8 @@ class ImprovementController extends Controller
         $this->authorize('update', $record);
         $this->ensureImprovementInputIsAvailable($record);
 
+        $record->load('improvementRecord');
+
         return view('records.improvement', compact('record'));
     }
 
@@ -22,7 +24,14 @@ class ImprovementController extends Controller
         $this->authorize('update', $record);
         $this->ensureImprovementInputIsAvailable($record);
 
-        $record->update($request->validated());
+        if ($request->usesLegacyPayload()) {
+            $record->update($request->legacyDailyRecordAttributes());
+        } else {
+            $record->improvementRecord()->updateOrCreate(
+                [],
+                $request->improvementRecordAttributes(),
+            );
+        }
 
         return redirect()->route('records.show', $record)->with('success', '改善結果を保存しました。');
     }

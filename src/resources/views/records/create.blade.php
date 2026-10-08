@@ -44,6 +44,11 @@
                 <textarea id="improvement_strategy" name="improvement_strategy" required maxlength="1000" placeholder="明日から試す、次の小さな行動" aria-invalid="{{ $errors->has('improvement_strategy') ? 'true' : 'false' }}" aria-describedby="@error('improvement_strategy') improvement-strategy-error @enderror">{{ old('improvement_strategy') }}</textarea>
                 @error('improvement_strategy')<p id="improvement-strategy-error" class="field-error">{{ $message }}</p>@enderror
             </div>
+            <div class="form-field">
+                <label for="expected_result">想定する結果<span class="field-required">必須</span></label>
+                <textarea id="expected_result" name="expected_result" required maxlength="1000" placeholder="改善策を続けた結果、どう変わると期待するか" aria-invalid="{{ $errors->has('expected_result') ? 'true' : 'false' }}" aria-describedby="@error('expected_result') expected-result-error @enderror">{{ old('expected_result') }}</textarea>
+                @error('expected_result')<p id="expected-result-error" class="field-error">{{ $message }}</p>@enderror
+            </div>
             <fieldset>
                 <legend>この日報を公開しますか？<span class="field-optional">任意</span></legend>
                 <p class="form-help">未選択時は非公開です。公開すると、他のユーザーが閲覧できるようになります。</p>

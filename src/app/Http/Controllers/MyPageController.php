@@ -3,16 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\DailyRecord;
-use App\Services\ImprovementTrendChart;
+use App\Models\ImprovementRecord;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class MyPageController extends Controller
 {
-    public function __construct(
-        private readonly ImprovementTrendChart $improvementTrendChart,
-    ) {}
-
     public function index(Request $request): View
     {
         $user = $request->user();
@@ -38,24 +34,23 @@ class MyPageController extends Controller
             ->latestRecordFirst()
             ->get();
 
-        $improvementRecords = $user->dailyRecords()
-            ->whereNotNull('improvement_rate')
-            ->orderBy('record_date')
-            ->orderBy('created_at')
-            ->get();
-        $chart = $this->improvementTrendChart->build($improvementRecords);
+        $currentMonthStart = now(config('app.timezone'))->startOfMonth()->toDateString();
+        $currentMonthEnd = now(config('app.timezone'))->endOfMonth()->toDateString();
+        $monthlyImprovementActionCount = ImprovementRecord::query()
+            ->where('execution_status', ImprovementRecord::STATUS_EXECUTED)
+            ->whereIn('result_evaluation', ImprovementRecord::EVALUATIONS)
+            ->whereBetween('executed_at', [$currentMonthStart, $currentMonthEnd])
+            ->whereHas('dailyRecord', fn ($query) => $query->where('user_id', $user->id))
+            ->count();
+        $pendingImprovementCount = $user->pendingImprovementRecords()->count();
 
         return view('mypage.index', [
             'user' => $user,
             'following' => $following,
             'followers' => $followers,
             'likedRecords' => $likedRecords,
-            'improvementRecords' => $improvementRecords,
-            'chartPoints' => $chart['points'],
-            'chartLabelY' => $chart['labelY'],
-            'chartWidth' => $chart['width'],
-            'chartHeight' => $chart['height'],
-            'chartPadding' => $chart['padding'],
+            'monthlyImprovementActionCount' => $monthlyImprovementActionCount,
+            'pendingImprovementCount' => $pendingImprovementCount,
         ]);
     }
 }

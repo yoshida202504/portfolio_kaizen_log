@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\DailyRecord;
 use App\Models\Follow;
+use App\Models\ImprovementRecord;
 use App\Models\Like;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -120,7 +121,7 @@ class MyPageTest extends TestCase
             ->assertDontSee($record->actions);
     }
 
-    public function test_my_page_displays_improvement_rate_trend_in_chronological_order(): void
+    public function test_my_page_does_not_display_the_legacy_improvement_rate_chart(): void
     {
         $user = User::factory()->create();
         $firstRecord = $this->createRecord($user, [
@@ -135,29 +136,60 @@ class MyPageTest extends TestCase
         $this->actingAs($user)
             ->get(route('mypage'))
             ->assertOk()
-            ->assertSee('改善率の推移')
-            ->assertSee('aria-label="改善率の推移グラフ"', false)
-            ->assertSeeInOrder([
-                $firstRecord->record_date.'：20%',
-                $secondRecord->record_date.'：80%',
-            ]);
+            ->assertDontSee('改善率の推移')
+            ->assertDontSee($firstRecord->record_date.'：20%')
+            ->assertDontSee($secondRecord->record_date.'：80%');
     }
 
-    public function test_my_page_shows_message_when_no_improvement_rate_has_been_recorded(): void
+    public function test_my_page_does_not_render_the_legacy_improvement_rate_empty_state(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)
             ->get(route('mypage'))
-            ->assertSee('改善率が記録された日報はまだありません。');
+            ->assertDontSee('改善率が記録された日報はまだありません。');
+    }
+
+    public function test_my_page_summarizes_current_month_executed_improvements_and_pending_reflections(): void
+    {
+        $user = User::factory()->create();
+        $executedRecord = $this->createRecord($user, ['record_date' => now()->toDateString()]);
+        $notExecutedRecord = $this->createRecord($user, ['record_date' => now()->toDateString()]);
+        $previousMonthRecord = $this->createRecord($user, ['record_date' => now()->subMonth()->toDateString()]);
+        $pendingRecord = $this->createRecord($user, [
+            'created_at' => now()->subDays(5),
+            'updated_at' => now()->subDays(5),
+        ]);
+
+        ImprovementRecord::factory()->for($executedRecord, 'dailyRecord')->create([
+            'result_evaluation' => 'A',
+            'executed_at' => now()->toDateString(),
+        ]);
+        ImprovementRecord::factory()->for($notExecutedRecord, 'dailyRecord')->notExecuted()->create();
+        ImprovementRecord::factory()->for($previousMonthRecord, 'dailyRecord')->create([
+            'executed_at' => now()->subMonth()->toDateString(),
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('mypage'))
+            ->assertOk()
+            ->assertSee('今月の改善行動数')
+            ->assertSee('未振り返り')
+            ->assertSee('改善記録')
+            ->assertSee('>1件<', false)
+            ->assertSee(route('improvement-records.index'), false);
+
+        $this->assertTrue($pendingRecord->isImprovementReflectionDue());
     }
 
     private function createRecord(User $owner, array $overrides = []): DailyRecord
     {
-        return DailyRecord::factory()->for($owner)->create(array_merge([
+        $attributes = array_merge([
             'record_date' => '2026-09-20',
             'improvement_rate' => null,
-        ], $overrides));
+        ], $overrides);
+
+        return DailyRecord::factory()->for($owner)->create($attributes);
     }
 
     private function createMutualFollowing(User $firstUser, User $secondUser): void

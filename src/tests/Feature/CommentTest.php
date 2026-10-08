@@ -119,6 +119,39 @@ class CommentTest extends TestCase
         $this->assertDatabaseCount('comments', 0);
     }
 
+    public function test_harmful_comment_is_rejected_without_being_saved(): void
+    {
+        $commenter = User::factory()->create();
+        $record = $this->createRecord(User::factory()->create(), ['is_public' => true]);
+
+        $this->actingAs($commenter)
+            ->from(route('records.show', $record))
+            ->post(route('records.comments.store', $record), ['body' => '死ね'])
+            ->assertRedirect(route('records.show', $record).'#comments')
+            ->assertSessionHasErrors([
+                'body' => 'このコメントは、ユーザーを傷つける可能性があるため投稿できません。',
+            ]);
+
+        $this->assertDatabaseCount('comments', 0);
+    }
+
+    public function test_harmful_comment_update_is_rejected_without_changing_the_existing_comment(): void
+    {
+        $commenter = User::factory()->create();
+        $record = $this->createRecord(User::factory()->create(), ['is_public' => true]);
+        $comment = $this->createComment($commenter, $record, '応援しています。');
+
+        $this->actingAs($commenter)
+            ->patch(route('comments.update', $comment), ['body' => '消 え ろ'])
+            ->assertRedirect(route('records.show', $record).'#comments')
+            ->assertSessionHasErrors('body');
+
+        $this->assertDatabaseHas('comments', [
+            'id' => $comment->id,
+            'body' => '応援しています。',
+        ]);
+    }
+
     public function test_comment_update_validation_error_redirects_to_the_comments_section(): void
     {
         $commenter = User::factory()->create();

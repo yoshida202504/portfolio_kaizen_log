@@ -31,6 +31,24 @@
             </form>
 
             <section class="page-section">
+                @if ($pendingImprovementRecords->isNotEmpty())
+                    <section id="pending-improvements" class="card pending-improvements" aria-labelledby="pending-improvements-title">
+                        <div>
+                            <p class="eyebrow">REFLECTION REMINDER</p>
+                            <h2 id="pending-improvements-title" class="panel-title">改善結果の未入力 <span>{{ $pendingImprovementRecords->count() }}件</span></h2>
+                            <p>作成から6日目以降の日報です。期限までに実施した結果を振り返りましょう。</p>
+                        </div>
+                        <div class="record-list">
+                            @foreach ($pendingImprovementRecords as $pendingRecord)
+                                <article class="record-card">
+                                    <div class="record-date">期限 {{ $pendingRecord->improvementDeadline()->format('n/j 23:59') }}</div>
+                                    <div><h3>{{ $pendingRecord->actions }}</h3><p>改善策：{{ $pendingRecord->improvement_strategy }}</p></div>
+                                    <a href="{{ route('records.improvement.edit', $pendingRecord) }}">振り返る</a>
+                                </article>
+                            @endforeach
+                        </div>
+                    </section>
+                @endif
                 <h2 class="panel-title">最近の日報 <span>{{ request()->hasAny(['record_date', 'keyword']) ? '検索結果' : '' }}</span></h2>
                 <div class="record-list">
                     @forelse ($dailyRecords as $dailyRecord)

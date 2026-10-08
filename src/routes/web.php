@@ -6,6 +6,7 @@ use App\Http\Controllers\DailyRecordController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImprovementController;
+use App\Http\Controllers\ImprovementRecordController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MyPageController;
@@ -28,6 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/users/{user}/follow', [FollowController::class, 'store'])->name('users.follow.store');
     Route::delete('/users/{user}/follow', [FollowController::class, 'destroy'])->name('users.follow.destroy');
     Route::get('/mypage', [MyPageController::class, 'index'])->name('mypage');
+    Route::get('/improvement-records', [ImprovementRecordController::class, 'index'])->name('improvement-records.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

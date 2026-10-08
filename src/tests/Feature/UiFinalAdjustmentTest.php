@@ -85,6 +85,7 @@ class UiFinalAdjustmentTest extends TestCase
             'good_points' => '良かったことです。',
             'improvement_points' => '改善点です。',
             'improvement_strategy' => '改善策です。',
+            'expected_result' => '想定する結果です。',
             'is_public' => false,
         ];
     }

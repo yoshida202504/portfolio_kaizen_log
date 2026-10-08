@@ -218,6 +218,7 @@ class DailyRecordValidationTest extends TestCase
             'good_points' => 'テストで良かったことです。',
             'improvement_points' => 'テストで改善点です。',
             'improvement_strategy' => 'テストで改善策です。',
+            'expected_result' => 'テストで想定する結果です。',
             'is_public' => false,
         ], $overrides);
     }

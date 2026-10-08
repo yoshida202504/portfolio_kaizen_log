@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@yield('title', 'Kaizen Log')</title>
-        <link rel="stylesheet" href="{{ asset('css/kaizen-log.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/kaizen-log.css') }}?v={{ filemtime(public_path('css/kaizen-log.css')) }}">
         <script src="{{ asset('js/navigation.js') }}" defer></script>
     </head>
     <body class="app-body">
@@ -49,6 +49,17 @@
                         <span class="nav-icon" aria-hidden="true">◉</span>
                         <span class="nav-label">マイページ</span>
                     </a>
+                    <a class="{{ request()->routeIs('improvement-records.*') ? 'is-active' : '' }}" href="{{ route('improvement-records.index') }}" aria-label="改善記録" title="改善記録">
+                        <span class="nav-icon" aria-hidden="true">◔</span>
+                        <span class="nav-label">改善記録</span>
+                    </a>
+                    @if ($pendingImprovementCount > 0)
+                        <a class="pending-improvement-link" href="{{ route('home') }}#pending-improvements" aria-label="未振り返りの日報が{{ $pendingImprovementCount }}件あります">
+                            <span class="nav-icon" aria-hidden="true">!</span>
+                            <span class="nav-label">未振り返り</span>
+                            <span class="notification-badge" aria-hidden="true">{{ $pendingImprovementCount }}</span>
+                        </a>
+                    @endif
                 </nav>
 
                 <form class="logout-form" method="POST" action="{{ route('logout') }}">

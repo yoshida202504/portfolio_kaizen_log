@@ -15,6 +15,24 @@
             </div>
         </section>
 
+        <section class="mypage-improvement-summary" aria-label="改善の要約">
+            <article class="summary-card">
+                <span>今月の改善行動数</span>
+                <strong>{{ $monthlyImprovementActionCount }}件</strong>
+                <p>A〜Cとして実施した改善策</p>
+            </article>
+            <article class="summary-card">
+                <span>未振り返り</span>
+                <strong>{{ $pendingImprovementCount }}件</strong>
+                <p>入力期限が近い日報</p>
+            </article>
+            <a class="summary-card summary-card-link" href="{{ route('improvement-records.index') }}">
+                <span>改善記録</span>
+                <strong>振り返る</strong>
+                <p>週ごとの実施数と評価を見る</p>
+            </a>
+        </section>
+
         <section class="card relationship-card" aria-label="いいねとフォローの情報">
             <div class="relationship-tabs" role="tablist" aria-label="いいねとフォローの表示を切り替える">
                 <button id="liked-records-tab" class="relationship-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="liked-records-panel">いいねの日報</button>
@@ -53,26 +71,5 @@
             </div>
         </section>
 
-        <section class="card">
-            <h2 class="panel-title">改善率の推移</h2>
-            @if ($chartPoints->isNotEmpty())
-                <svg class="improvement-chart" viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" role="img" aria-label="改善率の推移グラフ">
-                    <line x1="{{ $chartPadding }}" y1="{{ $chartPadding }}" x2="{{ $chartPadding }}" y2="{{ $chartHeight - $chartPadding }}" stroke="#6b7280" />
-                    <line x1="{{ $chartPadding }}" y1="{{ $chartHeight - $chartPadding }}" x2="{{ $chartWidth - $chartPadding }}" y2="{{ $chartHeight - $chartPadding }}" stroke="#6b7280" />
-                    <text x="4" y="{{ $chartPadding + 4 }}" font-size="12">100%</text><text x="16" y="{{ $chartHeight - $chartPadding + 4 }}" font-size="12">0%</text>
-                    <polyline fill="none" stroke="#1967c9" stroke-width="3" points="{{ $chartPoints->map(fn ($point) => $point['x'] . ',' . $point['y'])->implode(' ') }}" />
-                    @foreach ($chartPoints as $point)
-                        <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4" fill="#1967c9"><title>{{ $point['record_date'] }}：{{ $point['rate'] }}%</title></circle>
-                        @if ($point['show_date_label'])
-                            <text x="{{ $point['x'] }}" y="{{ $chartLabelY }}" text-anchor="end" font-size="11" transform="rotate(-35 {{ $point['x'] }} {{ $chartLabelY }})">{{ $point['record_date'] }}</text>
-                        @endif
-                        <text x="{{ $point['x'] }}" y="{{ $point['y'] - 8 }}" text-anchor="middle" font-size="11">{{ $point['rate'] }}%</text>
-                    @endforeach
-                </svg>
-                <ul>@foreach ($improvementRecords as $record)<li>{{ $record->record_date }}：{{ $record->improvement_rate }}%</li>@endforeach</ul>
-            @else
-                <p class="empty-state">改善率が記録された日報はまだありません。</p>
-            @endif
-        </section>
     </div>
 @endsection

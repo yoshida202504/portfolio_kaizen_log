@@ -56,6 +56,11 @@ class User extends Authenticatable
         return $this->hasMany(DailyRecord::class);
     }
 
+    public function pendingImprovementRecords(): HasMany
+    {
+        return $this->dailyRecords()->improvementReflectionDue();
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);

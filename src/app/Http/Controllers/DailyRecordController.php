@@ -23,6 +23,7 @@ class DailyRecordController extends Controller
 
         $record->loadCount('likes')->load([
             'comments' => fn ($query) => $query->with('user')->oldest(),
+            'improvementRecord',
         ]);
 
         $canInteract = auth()->id() !== $record->user_id;

@@ -20,8 +20,24 @@
                 <p><span class="detail-label">良かったこと</span>{{ $record->good_points }}</p>
                 <p><span class="detail-label">改善点</span>{{ $record->improvement_points }}</p>
                 <p><span class="detail-label">改善策</span>{{ $record->improvement_strategy }}</p>
-                <p><span class="detail-label">改善結果</span>{{ $record->improvement_result ?: '未記録' }}</p>
-                <p><span class="detail-label">改善率</span>{{ is_null($record->improvement_rate) ? '未記録' : $record->improvement_rate . '%' }}</p>
+                <p><span class="detail-label">想定する結果</span>{{ $record->expected_result ?: '未記録' }}</p>
+                @if ($record->improvementRecord)
+                    <p><span class="detail-label">評価</span>{{ $record->improvementRecord->evaluation }}</p>
+                    @if ($record->improvementRecord->evaluation === 'D')
+                        <p><span class="detail-label">未実施の理由</span>{{ ['forgot' => '忘れた', 'no_time' => '時間がなかった', 'unnecessary' => '不要になった', 'other' => 'その他'][$record->improvementRecord->not_executed_reason] }}</p>
+                        @if ($record->improvementRecord->not_executed_note)
+                            <p><span class="detail-label">その他の理由</span>{{ $record->improvementRecord->not_executed_note }}</p>
+                        @endif
+                    @else
+                        <p><span class="detail-label">実施日</span>{{ $record->improvementRecord->executed_at?->format('Y-m-d') }}</p>
+                        <p><span class="detail-label">実際の結果</span>{{ $record->improvementRecord->actual_result }}</p>
+                    @endif
+                @elseif ($record->improvement_result || ! is_null($record->improvement_rate))
+                    <p><span class="detail-label">改善結果（旧記録）</span>{{ $record->improvement_result ?: '未記録' }}</p>
+                    <p><span class="detail-label">改善率（旧記録）</span>{{ is_null($record->improvement_rate) ? '未記録' : $record->improvement_rate . '%' }}</p>
+                @else
+                    <p><span class="detail-label">改善記録</span>未記録</p>
+                @endif
                 @if ($record->image_path)
                     <img class="detail-image" src="{{ asset('storage/' . $record->image_path) }}" alt="日報画像">
                 @endif
