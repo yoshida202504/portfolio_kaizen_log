@@ -14,7 +14,7 @@
         <div>
             <div class="summary-grid">
                 <div class="summary-card"><span>記録した日報</span><strong>{{ $dailyRecords->total() }}件</strong></div>
-                <div class="summary-card"><span>今月の目標</span><strong>振り返り</strong></div>
+                <div class="summary-card"><span>今月の日報</span><strong>{{ $monthlyRecordCount }}件</strong></div>
             </div>
 
             <form class="search-form" method="GET" action="{{ route('records.search') }}">
@@ -102,7 +102,7 @@
             <p>日報は、自分の変化に気づくための小さな記録です。</p>
             <p><a href="{{ route('records.create') }}">今日の日報を作成する</a></p>
             <p><a href="{{ route('community.index') }}">他のユーザーの日報を見る</a></p>
-            <p><a href="{{ route('mypage') }}">改善率の推移を見る</a></p>
+            <p><a href="{{ route('improvement-records.index') }}">改善記録を振り返る</a></p>
         </aside>
     </div>
 @endsection

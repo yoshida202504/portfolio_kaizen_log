@@ -20,6 +20,7 @@ class HomeController extends Controller
         return view('home.index', [
             'dailyRecords' => $dailyRecords,
             'pendingImprovementRecords' => $this->pendingImprovementRecords($user),
+            'monthlyRecordCount' => $this->monthlyRecordCount($user),
         ]);
     }
 
@@ -48,7 +49,17 @@ class HomeController extends Controller
         return view('home.index', [
             'dailyRecords' => $dailyRecords,
             'pendingImprovementRecords' => $this->pendingImprovementRecords($user),
+            'monthlyRecordCount' => $this->monthlyRecordCount($user),
         ]);
+    }
+
+    private function monthlyRecordCount(User $user): int
+    {
+        $now = now(config('app.timezone'));
+
+        return $user->dailyRecords()
+            ->whereBetween('record_date', [$now->copy()->startOfMonth()->toDateString(), $now->copy()->endOfMonth()->toDateString()])
+            ->count();
     }
 
     private function pendingImprovementRecords(User $user)

@@ -6,6 +6,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { margin: 0; overflow-x: hidden; line-height: 1.65; }
 a { color: #1e63bc; font-weight: 700; text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -103,6 +104,7 @@ textarea { min-height: 112px; resize: vertical; }
 .form-card { width: min(700px, 100%); }
 .form-field { display: grid; gap: 6px; margin-top: 18px; }
 .form-field:first-of-type { margin-top: 0; }
+[data-improvement-group] { margin-top: 18px; }
 .form-help { margin: 0; color: #74838d; font-size: .83rem; }
 .choice-group { display: flex; flex-wrap: wrap; gap: 14px; padding: 12px 0 0; }
 .choice-group label { display: inline-flex; align-items: center; gap: 6px; color: #426074; font-weight: 700; }
@@ -128,6 +130,8 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .comment { padding: 14px 0; border-top: 1px solid #e5ece8; }
 .comment:first-of-type { border-top: 0; }
 .comment-meta { margin: 0 0 4px; color: #6e7f8b; font-size: .83rem; font-weight: 800; }
+.text-button { padding: 4px 0; color: #b13c47; background: transparent; border: 0; font-size: .88rem; font-weight: 800; }
+.text-button:hover { text-decoration: underline; }
 .comment-body { margin: 0 0 10px; overflow-wrap: anywhere; white-space: pre-wrap; word-break: break-word; }
 .profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .profile-item { padding: 13px; background: #f6faf8; border-radius: 8px; }
@@ -181,8 +185,13 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .guest-card { padding: 30px; background: #fffefb; border: 1px solid #e4e9e4; border-radius: 14px; box-shadow: 0 18px 40px #1c48621a; }
 .guest-card h1 { margin: 0; color: #163d66; text-align: center; font-size: 1.55rem; }
 .guest-card > p { color: #67808f; text-align: center; }
+.error-page { text-align: center; }
 .guest-footer { margin: 20px 0 0; color: #617786; text-align: center; font-size: .9rem; }
 .complete-icon { display: grid; width: 62px; height: 62px; margin: 0 auto 16px; place-items: center; color: #1e8a73; background: #e1f5ec; border-radius: 50%; font-size: 1.8rem; }
+
+@media (max-width: 1100px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+}
 
 @media (max-width: 760px) {
     .app-shell { display: block; min-height: 100vh; }
