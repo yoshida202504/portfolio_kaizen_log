@@ -18,6 +18,8 @@ class ProfileController extends Controller
 
     public function update(UpdateProfileRequest $request): RedirectResponse
     {
+        $this->ensureNotGuest($request);
+
         $request->user()->update($request->validated());
 
         return redirect()->route('mypage')->with('success', 'プロフィールを更新しました。');
@@ -25,6 +27,8 @@ class ProfileController extends Controller
 
     public function destroy(WithdrawAccountRequest $request): RedirectResponse
     {
+        $this->ensureNotGuest($request);
+
         $user = $request->user();
 
         Auth::logout();
@@ -34,5 +38,13 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    /**
+     * The guest account is shared by every reviewer, so its profile must stay intact.
+     */
+    private function ensureNotGuest(Request $request): void
+    {
+        abort_if($request->user()->isGuest(), 403, 'ゲストユーザーはプロフィールの変更と退会ができません。');
     }
 }
