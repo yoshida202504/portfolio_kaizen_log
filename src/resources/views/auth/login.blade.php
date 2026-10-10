@@ -34,6 +34,15 @@
             </div>
         </form>
 
+        <div class="guest-login">
+            <p>登録せずに機能を試したい方は、デモデータ入りのゲストアカウントをご利用ください。</p>
+            <form method="POST" action="{{ route('login.guest') }}">
+                @csrf
+                <button class="button-secondary" type="submit">ゲストとして試す</button>
+            </form>
+            @error('guest')<p class="field-error">{{ $message }}</p>@enderror
+        </div>
+
         <p class="guest-footer">アカウントをお持ちでない方は、<a href="{{ route('register') }}">新規登録はこちら</a></p>
     </section>
 @endsection

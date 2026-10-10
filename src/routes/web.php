@@ -4,6 +4,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\DailyRecordController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\GuestLoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImprovementController;
 use App\Http\Controllers\ImprovementRecordController;
@@ -20,6 +21,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+    Route::post('/guest-login', [GuestLoginController::class, 'store'])->middleware('throttle:10,1')->name('login.guest');
 });
 
 Route::middleware('auth')->group(function () {
