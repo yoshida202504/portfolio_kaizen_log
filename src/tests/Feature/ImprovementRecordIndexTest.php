@@ -128,8 +128,8 @@ class ImprovementRecordIndexTest extends TestCase
         $user = User::factory()->create();
         $firstRecord = $this->createDailyRecord($user, '2026-09-01', '最初の改善率記録');
         $secondRecord = $this->createDailyRecord($user, '2026-09-02', '次の改善率記録');
-        $firstRecord->update(['improvement_rate' => 20]);
-        $secondRecord->update(['improvement_rate' => 80]);
+        $firstRecord->forceFill(['improvement_rate' => 20])->save();
+        $secondRecord->forceFill(['improvement_rate' => 80])->save();
 
         $this->actingAs($user)
             ->get(route('improvement-records.index'))
