@@ -48,6 +48,21 @@
                         <p class="empty-state">いいねした日報はありません。</p>
                     @endforelse
                 </div>
+                @if ($likedRecords->hasPages())
+                    <nav class="pagination" aria-label="いいねした日報のページ移動">
+                        @if ($likedRecords->onFirstPage())
+                            <span class="pagination-link is-disabled" aria-disabled="true">前へ</span>
+                        @else
+                            <a class="pagination-link" href="{{ $likedRecords->previousPageUrl() }}" rel="prev">前へ</a>
+                        @endif
+                        <span class="pagination-status" aria-current="page">{{ $likedRecords->currentPage() }} / {{ $likedRecords->lastPage() }} ページ</span>
+                        @if ($likedRecords->hasMorePages())
+                            <a class="pagination-link" href="{{ $likedRecords->nextPageUrl() }}" rel="next">次へ</a>
+                        @else
+                            <span class="pagination-link is-disabled" aria-disabled="true">次へ</span>
+                        @endif
+                    </nav>
+                @endif
             </div>
 
             <div id="following-panel" class="relationship-panel" role="tabpanel" tabindex="0" aria-labelledby="following-tab" hidden>

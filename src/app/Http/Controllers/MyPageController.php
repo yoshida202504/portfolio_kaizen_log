@@ -32,7 +32,8 @@ class MyPageController extends Controller
             ->whereHas('likes', fn ($query) => $query->where('user_id', $user->id))
             ->visibleTo($user)
             ->latestRecordFirst()
-            ->get();
+            ->paginate(10, ['*'], 'liked_page')
+            ->fragment('liked-records-panel');
 
         $currentMonthStart = now(config('app.timezone'))->startOfMonth()->toDateString();
         $currentMonthEnd = now(config('app.timezone'))->endOfMonth()->toDateString();
