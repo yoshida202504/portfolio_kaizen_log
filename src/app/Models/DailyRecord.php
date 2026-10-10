@@ -15,6 +15,10 @@ class DailyRecord extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * improvement_result and improvement_rate are kept read-only for records
+     * written before the A-D evaluation was introduced.
+     */
     protected $fillable = [
         'record_date',
         'actions',
@@ -22,8 +26,6 @@ class DailyRecord extends Model
         'improvement_points',
         'improvement_strategy',
         'expected_result',
-        'improvement_result',
-        'improvement_rate',
         'is_public',
         'image_path',
     ];

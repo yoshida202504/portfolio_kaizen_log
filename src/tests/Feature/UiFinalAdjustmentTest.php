@@ -41,8 +41,9 @@ class UiFinalAdjustmentTest extends TestCase
 
         $this->actingAs($user)
             ->patch(route('records.improvement.update', $record), [
-                'improvement_result' => '実行して振り返りました。',
-                'improvement_rate' => 60,
+                'evaluation' => 'B',
+                'executed_at' => now()->toDateString(),
+                'actual_result' => '実行して振り返りました。',
             ])
             ->assertRedirect(route('records.show', $record))
             ->assertSessionHas('success', '改善結果を保存しました。');
