@@ -15,6 +15,8 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
 
+    public const GUEST_EMAIL = 'guest@kaizen-log.test';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -49,6 +51,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isGuest(): bool
+    {
+        return $this->email === self::GUEST_EMAIL;
     }
 
     public function dailyRecords(): HasMany
