@@ -50,7 +50,7 @@ class ImprovementRecordController extends Controller
 
         return view('improvement-records.index', [
             'records' => $filteredRecords
-                ->with('dailyRecord:id,record_date,actions,expected_result')
+                ->with('dailyRecord:id,record_date,actions,improvement_strategy,expected_result')
                 ->orderByDesc('executed_at')
                 ->orderByDesc('created_at')
                 ->paginate(20)
