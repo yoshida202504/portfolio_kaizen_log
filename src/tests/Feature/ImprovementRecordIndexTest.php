@@ -69,6 +69,27 @@ class ImprovementRecordIndexTest extends TestCase
             ->assertSee('>2<', false);
     }
 
+    public function test_improvement_record_list_shows_strategy_and_expected_result_of_daily_record(): void
+    {
+        $user = User::factory()->create();
+        $record = DailyRecord::factory()->for($user)->create([
+            'record_date' => '2026-09-10',
+            'actions' => '改善策表示の確認',
+            'improvement_strategy' => '作業前に3行でゴールを書く',
+            'expected_result' => '作業の手戻りが減る',
+        ]);
+        ImprovementRecord::factory()->for($record, 'dailyRecord')->create([
+            'result_evaluation' => 'B',
+            'executed_at' => '2026-09-11',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('improvement-records.index', ['year' => 2026, 'start_month' => 9, 'end_month' => 9]))
+            ->assertOk()
+            ->assertSee('作業前に3行でゴールを書く')
+            ->assertSee('作業の手戻りが減る');
+    }
+
     public function test_evaluation_and_period_filters_only_return_matching_records_and_keep_query_string(): void
     {
         $user = User::factory()->create();
