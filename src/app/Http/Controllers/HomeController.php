@@ -33,14 +33,7 @@ class HomeController extends Controller
                 $query->whereDate('record_date', $request->input('record_date'));
             })
             ->when($request->filled('keyword'), function ($query) use ($request) {
-                $keyword = $request->input('keyword');
-
-                $query->where(function ($query) use ($keyword) {
-                    $query->where('actions', 'like', "%{$keyword}%")
-                        ->orWhere('good_points', 'like', "%{$keyword}%")
-                        ->orWhere('improvement_points', 'like', "%{$keyword}%")
-                        ->orWhere('improvement_strategy', 'like', "%{$keyword}%");
-                });
+                $query->keywordSearch((string) $request->input('keyword'));
             })
             ->latestRecordFirst()
             ->paginate(10)

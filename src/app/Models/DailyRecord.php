@@ -102,6 +102,21 @@ class DailyRecord extends Model
             ->whereDoesntHave('improvementRecord');
     }
 
+    /**
+     * Search body fields by keyword, treating % and _ as literal characters.
+     * The escape character is "!" because MySQL and SQLite handle a backslash differently.
+     */
+    public function scopeKeywordSearch(Builder $query, string $keyword): Builder
+    {
+        $pattern = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $keyword).'%';
+
+        return $query->where(function (Builder $query) use ($pattern): void {
+            foreach (['actions', 'good_points', 'improvement_points', 'improvement_strategy'] as $column) {
+                $query->orWhereRaw("{$column} like ? escape '!'", [$pattern]);
+            }
+        });
+    }
+
     public function scopeLatestRecordFirst(Builder $query): Builder
     {
         return $query->orderByDesc('record_date')->orderByDesc('created_at');
