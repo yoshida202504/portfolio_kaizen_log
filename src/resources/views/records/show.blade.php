@@ -61,12 +61,14 @@
                 <h2 class="panel-title">コメント</h2>
                 @forelse ($record->comments as $comment)
                     <article id="comment-{{ $comment->id }}" class="comment">
+                        @php($isSubmittedCommentForm = old('comment_form') === (string) $comment->id)
                         <p class="comment-meta">{{ $comment->user?->name ?? '退会したユーザー' }}</p>
                         <p class="comment-body">{{ $comment->body }}</p>
                         @can('update', $comment)
                             <form method="POST" action="{{ route('comments.update', $comment) }}">
                                 @csrf @method('PATCH')
-                                <div class="form-field"><label for="comment-body-{{ $comment->id }}">コメントを編集<span class="field-required">必須</span></label><textarea id="comment-body-{{ $comment->id }}" name="body" rows="3" maxlength="1000" required aria-invalid="{{ $errors->has('body') ? 'true' : 'false' }}" aria-describedby="@error('body') comment-body-error @enderror">{{ old('body', $comment->body) }}</textarea>@error('body')<p id="comment-body-error" class="field-error">{{ $message }}</p>@enderror</div>
+                                <input type="hidden" name="comment_form" value="{{ $comment->id }}">
+                                <div class="form-field"><label for="comment-body-{{ $comment->id }}">コメントを編集<span class="field-required">必須</span></label><textarea id="comment-body-{{ $comment->id }}" name="body" rows="3" maxlength="1000" required aria-invalid="{{ $isSubmittedCommentForm && $errors->has('body') ? 'true' : 'false' }}" @if ($isSubmittedCommentForm && $errors->has('body')) aria-describedby="comment-body-error-{{ $comment->id }}" @endif>{{ $isSubmittedCommentForm ? old('body') : $comment->body }}</textarea>@if ($isSubmittedCommentForm)@error('body')<p id="comment-body-error-{{ $comment->id }}" class="field-error">{{ $message }}</p>@enderror @endif</div>
                                 <div class="form-actions"><button class="button-secondary" type="submit">更新する</button></div>
                             </form>
                         @endcan
@@ -79,9 +81,11 @@
                 @endforelse
 
                 @if ($canInteract)
+                    @php($isNewCommentForm = old('comment_form', 'new') === 'new')
                     <form method="POST" action="{{ route('records.comments.store', $record) }}">
                         @csrf
-                        <div class="form-field"><label for="body">コメントを投稿<span class="field-required">必須</span></label><textarea id="body" name="body" rows="4" maxlength="1000" required placeholder="記録を読んで感じたことを書きましょう" aria-invalid="{{ $errors->has('body') ? 'true' : 'false' }}" aria-describedby="@error('body') comment-body-error @enderror">{{ old('body') }}</textarea>@error('body')<p id="comment-body-error" class="field-error">{{ $message }}</p>@enderror</div>
+                        <input type="hidden" name="comment_form" value="new">
+                        <div class="form-field"><label for="body">コメントを投稿<span class="field-required">必須</span></label><textarea id="body" name="body" rows="4" maxlength="1000" required placeholder="記録を読んで感じたことを書きましょう" aria-invalid="{{ $isNewCommentForm && $errors->has('body') ? 'true' : 'false' }}" @if ($isNewCommentForm && $errors->has('body')) aria-describedby="comment-body-error" @endif>{{ $isNewCommentForm ? old('body') : '' }}</textarea>@if ($isNewCommentForm)@error('body')<p id="comment-body-error" class="field-error">{{ $message }}</p>@enderror @endif</div>
                         <div class="form-actions"><button class="button" type="submit">コメントする</button></div>
                     </form>
                 @endif
