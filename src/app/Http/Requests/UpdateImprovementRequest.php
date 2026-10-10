@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\ImprovementRecord;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,19 +16,18 @@ class UpdateImprovementRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'evaluation' => ['nullable', Rule::in(['A', 'B', 'C', 'D'])],
+            'evaluation' => ['required', Rule::in(['A', 'B', 'C', 'D'])],
             'executed_at' => ['nullable', 'date', 'before_or_equal:today', 'required_if:evaluation,A,B,C'],
             'actual_result' => ['nullable', 'string', 'max:1000', 'required_if:evaluation,A,B,C'],
             'not_executed_reason' => ['nullable', Rule::in(ImprovementRecord::NOT_EXECUTED_REASONS), 'required_if:evaluation,D'],
             'not_executed_note' => ['nullable', 'string', 'max:1000', 'required_if:not_executed_reason,other'],
-            'improvement_result' => ['nullable', 'string', 'max:1000'],
-            'improvement_rate' => ['nullable', 'integer', Rule::in([0, 20, 40, 60, 80, 100])],
         ];
     }
 
     public function messages(): array
     {
         return [
+            'evaluation.required' => '評価を選択してください。',
             'evaluation.in' => '評価はA、B、C、Dから選択してください。',
             'executed_at.required_if' => '実施日を入力してください。',
             'executed_at.date' => '正しい実施日を入力してください。',
@@ -40,19 +38,7 @@ class UpdateImprovementRequest extends FormRequest
             'not_executed_reason.in' => '未実施の理由を正しく選択してください。',
             'not_executed_note.required_if' => 'その他の理由を入力してください。',
             'not_executed_note.max' => 'その他の理由は1000文字以内で入力してください。',
-            'improvement_result.max' => '改善結果は1000文字以内で入力してください。',
-            'improvement_rate.integer' => '改善率は整数で選択してください。',
-            'improvement_rate.in' => '改善率は0%、20%、40%、60%、80%、100%から選択してください。',
         ];
-    }
-
-    public function after(): array
-    {
-        return [function (Validator $validator): void {
-            if (! $this->filled('evaluation') && ! $this->usesLegacyPayload()) {
-                $validator->errors()->add('evaluation', '評価を選択してください。');
-            }
-        }];
     }
 
     /**
@@ -83,19 +69,5 @@ class UpdateImprovementRequest extends FormRequest
             'not_executed_reason' => null,
             'not_executed_note' => null,
         ];
-    }
-
-    public function usesLegacyPayload(): bool
-    {
-        return ! $this->filled('evaluation')
-            && ($this->has('improvement_result') || $this->has('improvement_rate'));
-    }
-
-    /**
-     * @return array<string, string|int|null>
-     */
-    public function legacyDailyRecordAttributes(): array
-    {
-        return $this->safe()->only(['improvement_result', 'improvement_rate']);
     }
 }

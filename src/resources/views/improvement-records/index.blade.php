@@ -89,10 +89,11 @@
         </svg>
     </section>
 
+    {{-- 旧仕様（改善率）の記録がある場合だけ、参考として表示する --}}
+    @if ($legacyChartPoints->isNotEmpty())
     <section class="card" aria-labelledby="legacy-improvement-trend-title">
         <h2 id="legacy-improvement-trend-title" class="panel-title">参考：従来の改善率の推移</h2>
         <p class="form-help">過去に改善率として保存した記録を確認できます。新しい改善結果は、上のA〜D評価と週ごとの改善行動数で振り返ります。</p>
-        @if ($legacyChartPoints->isNotEmpty())
             <svg class="improvement-chart" viewBox="0 0 {{ $legacyChartWidth }} {{ $legacyChartHeight }}" role="img" aria-label="改善率の推移グラフ">
                 <line x1="{{ $legacyChartPadding }}" y1="{{ $legacyChartPadding }}" x2="{{ $legacyChartPadding }}" y2="{{ $legacyChartHeight - $legacyChartPadding }}" stroke="#6b7280" />
                 <line x1="{{ $legacyChartPadding }}" y1="{{ $legacyChartHeight - $legacyChartPadding }}" x2="{{ $legacyChartWidth - $legacyChartPadding }}" y2="{{ $legacyChartHeight - $legacyChartPadding }}" stroke="#6b7280" />
@@ -106,10 +107,8 @@
                     <text x="{{ $point['x'] }}" y="{{ $point['y'] - 8 }}" text-anchor="middle" font-size="11">{{ $point['rate'] }}%</text>
                 @endforeach
             </svg>
-        @else
-            <p class="empty-state">改善率が記録された日報はまだありません。</p>
-        @endif
     </section>
+    @endif
 
     <section class="card" aria-labelledby="improvement-record-list-title">
         <h2 id="improvement-record-list-title" class="panel-title">改善記録一覧</h2>
