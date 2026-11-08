@@ -31,8 +31,6 @@ class RegisterRequest extends FormRequest
                 'confirmed',
                 Password::min(8)->mixedCase()->numbers(),
             ],
-            'age' => ['nullable', 'integer', 'between:15,99'],
-            'gender' => ['required', 'in:男性,女性,回答しない'],
         ];
     }
 
@@ -56,10 +54,6 @@ class RegisterRequest extends FormRequest
             'password.min' => 'パスワードは8文字以上で入力してください。',
             'password.password.mixed' => 'パスワードには英大文字と英小文字をそれぞれ1文字以上含めてください。',
             'password.password.numbers' => 'パスワードには数字を1文字以上含めてください。',
-            'age.integer' => '年齢は整数で入力してください。',
-            'age.between' => '年齢は15歳から99歳の間で入力してください。',
-            'gender.required' => '性別を選択してください。',
-            'gender.in' => '正しい性別を選択してください。',
         ];
     }
 }

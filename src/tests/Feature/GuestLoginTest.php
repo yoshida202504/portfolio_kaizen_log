@@ -59,7 +59,6 @@ class GuestLoginTest extends TestCase
             ->patch(route('profile.update'), [
                 'name' => '書き換えた名前',
                 'email' => 'changed@example.com',
-                'gender' => '男性',
             ])
             ->assertForbidden();
 

@@ -23,8 +23,6 @@ class MyPageTest extends TestCase
     {
         $user = User::factory()->create([
             'name' => 'マイページ利用者',
-            'age' => 30,
-            'gender' => '回答しない',
         ]);
 
         $this->actingAs($user)
@@ -32,7 +30,6 @@ class MyPageTest extends TestCase
             ->assertOk()
             ->assertSee('マイページ利用者')
             ->assertDontSee($user->email)
-            ->assertDontSee('回答しない')
             ->assertSee('プロフィールを編集する')
             ->assertDontSee('自分の日報一覧を見る');
     }

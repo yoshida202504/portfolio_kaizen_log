@@ -16,7 +16,8 @@ class UiFinalAdjustmentTest extends TestCase
         $this->get(route('register'))
             ->assertOk()
             ->assertSee('ユーザー名<span class="field-required">必須</span>', false)
-            ->assertSee('年齢<span class="field-optional">任意</span>', false)
+            ->assertDontSee('年齢')
+            ->assertDontSee('性別')
             ->assertSee('8文字以上で、英大文字・英小文字・数字をそれぞれ含めてください。');
 
         $user = User::factory()->create();
@@ -52,8 +53,6 @@ class UiFinalAdjustmentTest extends TestCase
             ->patch(route('profile.update'), [
                 'name' => $user->name,
                 'email' => $user->email,
-                'age' => $user->age,
-                'gender' => $user->gender,
             ])
             ->assertRedirect(route('mypage'))
             ->assertSessionHas('success', 'プロフィールを更新しました。');
