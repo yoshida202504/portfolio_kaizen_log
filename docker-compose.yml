@@ -3,6 +3,10 @@ services:
     build: ./infra/php
     user: "1000:1000"
     working_dir: /data
+    # PC起動直後の自動再起動で、WSLの準備前にマウントされると /data が空になり
+    # 全リクエストが "File not found." になる。中身が無ければ起動を失敗させ、
+    # restart ポリシーで再起動（＝マウントし直し）させる
+    command: ["sh", "-c", "test -f /data/artisan || { echo '/data is empty: bind mount not ready' >&2; exit 1; }; exec php-fpm"]
     volumes:
       - ./src:/data
     depends_on:
