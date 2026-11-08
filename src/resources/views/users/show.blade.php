@@ -10,8 +10,6 @@
     <section class="card">
         <div class="profile-grid">
             <div class="profile-item"><span>ユーザー名</span><strong>{{ $user->name }}</strong></div>
-            @if (! is_null($user->age))<div class="profile-item"><span>年齢</span><strong>{{ $user->age }}</strong></div>@endif
-            <div class="profile-item"><span>性別</span><strong>{{ $user->gender }}</strong></div>
         </div>
         <div class="form-actions">
             @if ($isOwnProfile)

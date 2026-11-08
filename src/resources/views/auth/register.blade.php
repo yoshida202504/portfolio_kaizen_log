@@ -40,21 +40,6 @@
                 <label for="password_confirmation">パスワード確認<span class="field-required">必須</span></label>
                 <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password">
             </div>
-            <div class="form-field">
-                <label for="age">年齢<span class="field-optional">任意</span></label>
-                <input id="age" name="age" type="number" value="{{ old('age') }}" min="15" max="99" step="1" aria-invalid="{{ $errors->has('age') ? 'true' : 'false' }}" aria-describedby="@error('age') age-error @enderror">
-                @error('age')<p id="age-error" class="field-error">{{ $message }}</p>@enderror
-            </div>
-            <div class="form-field">
-                <label for="gender">性別<span class="field-required">必須</span></label>
-                <select id="gender" name="gender" required aria-invalid="{{ $errors->has('gender') ? 'true' : 'false' }}" aria-describedby="@error('gender') gender-error @enderror">
-                    <option value="" disabled @selected(old('gender') === null)>選択してください</option>
-                    <option value="男性" @selected(old('gender') === '男性')>男性</option>
-                    <option value="女性" @selected(old('gender') === '女性')>女性</option>
-                    <option value="回答しない" @selected(old('gender') === '回答しない')>回答しない</option>
-                </select>
-                @error('gender')<p id="gender-error" class="field-error">{{ $message }}</p>@enderror
-            </div>
             <div class="form-actions">
                 <button class="button" type="submit">登録する</button>
             </div>

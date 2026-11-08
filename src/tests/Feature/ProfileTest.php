@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\DailyRecord;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -41,8 +42,6 @@ class ProfileTest extends TestCase
             ->patch(route('profile.update'), [
                 'name' => '更新後ユーザー',
                 'email' => 'after@example.com',
-                'age' => 35,
-                'gender' => '女性',
             ])
             ->assertRedirect(route('mypage'));
 
@@ -50,16 +49,12 @@ class ProfileTest extends TestCase
             'id' => $user->id,
             'name' => '更新後ユーザー',
             'email' => 'after@example.com',
-            'age' => 35,
-            'gender' => '女性',
         ]);
 
         $this->actingAs($user)
             ->patch(route('profile.update'), [
                 'name' => '更新後ユーザー',
                 'email' => 'after@example.com',
-                'age' => 35,
-                'gender' => '女性',
             ])
             ->assertSessionDoesntHaveErrors();
     }
@@ -77,27 +72,33 @@ class ProfileTest extends TestCase
             ->patch(route('profile.update'), [
                 'name' => $otherUser->name,
                 'email' => $otherUser->email,
-                'age' => 30,
-                'gender' => '男性',
             ])
             ->assertRedirect(route('profile.edit'))
             ->assertSessionHasErrors(['name', 'email']);
     }
 
-    public function test_profile_update_validates_age_and_gender(): void
+    public function test_profile_has_no_age_or_gender(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->from(route('profile.edit'))
+            ->get(route('profile.edit'))
+            ->assertOk()
+            ->assertDontSee('年齢')
+            ->assertDontSee('性別');
+
+        $this->actingAs($user)
             ->patch(route('profile.update'), [
                 'name' => $user->name,
                 'email' => $user->email,
                 'age' => 100,
                 'gender' => '不正な値',
             ])
-            ->assertRedirect(route('profile.edit'))
-            ->assertSessionHasErrors(['age', 'gender']);
+            ->assertRedirect(route('mypage'))
+            ->assertSessionDoesntHaveErrors();
+
+        $this->assertFalse(Schema::hasColumn('users', 'age'));
+        $this->assertFalse(Schema::hasColumn('users', 'gender'));
     }
 
     public function test_account_withdrawal_requires_confirmation(): void

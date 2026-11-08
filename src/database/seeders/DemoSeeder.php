@@ -22,10 +22,10 @@ class DemoSeeder extends Seeder
     private const DAYS = 90;
 
     private const USERS = [
-        ['email' => User::GUEST_EMAIL, 'name' => 'ゲストユーザー', 'age' => 28, 'gender' => '回答しない', 'interval' => 2],
-        ['email' => 'misaki.sato@kaizen-log.test', 'name' => '佐藤 美咲', 'age' => 26, 'gender' => '女性', 'interval' => 3],
-        ['email' => 'kenta.tanaka@kaizen-log.test', 'name' => '田中 健太', 'age' => 31, 'gender' => '男性', 'interval' => 4],
-        ['email' => 'yoko.suzuki@kaizen-log.test', 'name' => '鈴木 陽子', 'age' => 35, 'gender' => '女性', 'interval' => 5],
+        ['email' => User::GUEST_EMAIL, 'name' => 'ゲストユーザー', 'interval' => 2],
+        ['email' => 'misaki.sato@kaizen-log.test', 'name' => '佐藤 美咲', 'interval' => 3],
+        ['email' => 'kenta.tanaka@kaizen-log.test', 'name' => '田中 健太', 'interval' => 4],
+        ['email' => 'yoko.suzuki@kaizen-log.test', 'name' => '鈴木 陽子', 'interval' => 5],
     ];
 
     /**
@@ -150,7 +150,7 @@ class DemoSeeder extends Seeder
     }
 
     /**
-     * @param  array{email: string, name: string, age: int, gender: string}  $attributes
+     * @param  array{email: string, name: string}  $attributes
      */
     private function demoUser(array $attributes): User
     {
@@ -158,8 +158,6 @@ class DemoSeeder extends Seeder
             ['email' => $attributes['email']],
             [
                 'name' => $attributes['name'],
-                'age' => $attributes['age'],
-                'gender' => $attributes['gender'],
                 // Demo users are not meant to sign in with a password; the guest uses the guest login button.
                 'password' => Hash::make(Str::random(40)),
             ],

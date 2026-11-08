@@ -140,8 +140,6 @@ class CommunityFollowTest extends TestCase
         $viewer = User::factory()->create();
         $owner = User::factory()->create([
             'name' => '公開日報の投稿者',
-            'age' => 30,
-            'gender' => '回答しない',
         ]);
         $publicRecord = $this->createDailyRecord($owner, [
             'is_public' => true,
@@ -156,8 +154,8 @@ class CommunityFollowTest extends TestCase
 
         $response->assertOk();
         $response->assertSee($owner->name);
-        $response->assertSee('30');
-        $response->assertSee($owner->gender);
+        $response->assertDontSee('年齢');
+        $response->assertDontSee('性別');
         $response->assertSee($publicRecord->actions);
         $response->assertDontSee($privateRecord->actions);
         $response->assertDontSee($owner->email);

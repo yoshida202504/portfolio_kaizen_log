@@ -17,8 +17,6 @@ class UpdateProfileRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:30', Rule::unique('users', 'name')->ignore($this->user()->id)],
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($this->user()->id)],
-            'age' => ['nullable', 'integer', 'between:15,99'],
-            'gender' => ['required', 'in:男性,女性,回答しない'],
         ];
     }
 
@@ -31,10 +29,6 @@ class UpdateProfileRequest extends FormRequest
             'email.required' => 'メールアドレスを入力してください。',
             'email.email' => '正しいメールアドレス形式で入力してください。',
             'email.unique' => 'このメールアドレスはすでに使用されています。',
-            'age.integer' => '年齢は整数で入力してください。',
-            'age.between' => '年齢は15歳から99歳の間で入力してください。',
-            'gender.required' => '性別を選択してください。',
-            'gender.in' => '正しい性別を選択してください。',
         ];
     }
 }
