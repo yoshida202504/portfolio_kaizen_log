@@ -35,6 +35,43 @@ class GuestLoginTest extends TestCase
         $this->assertAuthenticatedAs(User::query()->where('email', User::GUEST_EMAIL)->firstOrFail());
     }
 
+    public function test_guest_login_resets_the_guest_data_to_the_demo_state(): void
+    {
+        $this->seed(DemoSeeder::class);
+        $guest = User::query()->where('email', User::GUEST_EMAIL)->firstOrFail();
+        $sato = User::query()->where('name', '佐藤 美咲')->firstOrFail();
+        // Follows are left out: the guest's follows are always removed on login.
+        $counts = array_diff_key($this->tableCounts(), ['follows' => 0]);
+        $guestRecordActions = $guest->dailyRecords()->orderBy('id')->pluck('actions')->all();
+
+        // A previous reviewer changes the guest data.
+        $added = DailyRecord::factory()->for($guest)->create(['actions' => '前のゲストが書いた日報']);
+        $guest->dailyRecords()->where('id', '!=', $added->id)->first()->delete();
+        $satoRecord = $sato->dailyRecords()->where('is_public', true)->firstOrFail();
+        Like::query()->where('user_id', $guest->id)->delete();
+        Comment::factory()->create(['user_id' => $guest->id, 'daily_record_id' => $satoRecord->id, 'body' => '前のゲストのコメント']);
+
+        $this->post(route('login.guest'))->assertRedirect(route('home'));
+
+        $this->assertSame($counts, array_diff_key($this->tableCounts(), ['follows' => 0]));
+        $this->assertSame($guestRecordActions, $guest->dailyRecords()->orderBy('id')->pluck('actions')->all());
+        $this->assertDatabaseMissing('daily_records', ['actions' => '前のゲストが書いた日報']);
+        $this->assertDatabaseMissing('comments', ['body' => '前のゲストのコメント']);
+        $this->assertGreaterThan(0, Like::query()->where('user_id', $guest->id)->count());
+        $this->assertSame(0, Follow::query()->where('follower_id', $guest->id)->orWhere('followed_id', $guest->id)->count());
+    }
+
+    public function test_guest_login_does_not_change_other_users_data(): void
+    {
+        $this->seed(DemoSeeder::class);
+        $others = User::query()->where('email', '!=', User::GUEST_EMAIL)->pluck('id');
+        $before = DailyRecord::withTrashed()->whereIn('user_id', $others)->orderBy('id')->get(['id', 'actions', 'is_public'])->toArray();
+
+        $this->post(route('login.guest'));
+
+        $this->assertSame($before, DailyRecord::withTrashed()->whereIn('user_id', $others)->orderBy('id')->get(['id', 'actions', 'is_public'])->toArray());
+    }
+
     public function test_guest_login_explains_how_to_create_the_guest_account_when_it_is_missing(): void
     {
         $this->from(route('login'))

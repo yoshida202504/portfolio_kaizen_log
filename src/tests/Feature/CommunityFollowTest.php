@@ -73,19 +73,66 @@ class CommunityFollowTest extends TestCase
             ->assertDontSee($privateRecord->actions);
     }
 
-    public function test_community_displays_private_daily_records_for_mutual_followers(): void
+    public function test_community_hides_private_daily_records_even_for_mutual_followers(): void
     {
         $viewer = User::factory()->create();
         $owner = User::factory()->create();
         $privateRecord = $this->createDailyRecord($owner, [
             'is_public' => false,
-            'actions' => '相互フォローなら見える非公開日報です。',
+            'actions' => '相互フォローでもCommunityには出ない非公開日報です。',
         ]);
         $this->createMutualFollowing($viewer, $owner);
 
         $this->actingAs($viewer)
             ->get(route('community.index'))
+            ->assertOk()
+            ->assertDontSee($privateRecord->actions);
+
+        // 相互フォローの非公開日報は、ユーザー詳細で見る
+        $this->actingAs($viewer)
+            ->get(route('users.show', $owner))
             ->assertSee($privateRecord->actions);
+    }
+
+    public function test_community_search_filters_public_daily_records_by_date_and_keyword(): void
+    {
+        $viewer = User::factory()->create();
+        $owner = User::factory()->create();
+        $match = $this->createDailyRecord($owner, ['is_public' => true, 'record_date' => '2026-11-01', 'actions' => '検索に当たる朝のランニング']);
+        $otherDate = $this->createDailyRecord($owner, ['is_public' => true, 'record_date' => '2026-11-02', 'actions' => '日付が違う朝のランニング']);
+        $otherWord = $this->createDailyRecord($owner, ['is_public' => true, 'record_date' => '2026-11-01', 'actions' => 'キーワードが違う読書']);
+        $private = $this->createDailyRecord($owner, ['is_public' => false, 'record_date' => '2026-11-01', 'actions' => '非公開の朝のランニング']);
+        $own = $this->createDailyRecord($viewer, ['is_public' => true, 'record_date' => '2026-11-01', 'actions' => '自分の朝のランニング']);
+
+        $this->actingAs($viewer)
+            ->get(route('community.index', ['record_date' => '2026-11-01', 'keyword' => 'ランニング']))
+            ->assertOk()
+            ->assertSee($match->actions)
+            ->assertDontSee($otherDate->actions)
+            ->assertDontSee($otherWord->actions)
+            ->assertDontSee($private->actions)
+            ->assertDontSee($own->actions)
+            ->assertSee('value="ランニング"', false);
+
+        $this->actingAs($viewer)
+            ->get(route('community.index', ['keyword' => '見つからない言葉']))
+            ->assertOk()
+            ->assertSee('条件に合う日報はありません。');
+    }
+
+    public function test_community_search_detail_returns_to_the_same_search(): void
+    {
+        $viewer = User::factory()->create();
+        $record = $this->createDailyRecord(User::factory()->create(), ['is_public' => true, 'actions' => '戻り先を確認する日報']);
+        $filters = ['keyword' => '戻り先'];
+
+        $this->actingAs($viewer)
+            ->get(route('community.index', $filters))
+            ->assertSee(e(route('records.show', ['record' => $record, 'source' => 'community', 'page' => 1, 'keyword' => '戻り先'])), false);
+
+        $this->actingAs($viewer)
+            ->get(route('records.show', ['record' => $record, 'source' => 'community', 'page' => 1, 'keyword' => '戻り先']))
+            ->assertSee(e(route('community.index', ['page' => 1, 'keyword' => '戻り先']).'#record-'.$record->id), false);
     }
 
     public function test_community_does_not_display_soft_deleted_daily_records(): void
@@ -307,7 +354,7 @@ class CommunityFollowTest extends TestCase
         $this->assertTrue($secondUser->isMutuallyFollowing($firstUser));
     }
 
-    public function test_unfollowing_removes_private_daily_record_access_from_detail_community_and_user_detail(): void
+    public function test_unfollowing_removes_private_daily_record_access_from_detail_and_user_detail(): void
     {
         $viewer = User::factory()->create();
         $owner = User::factory()->create();
@@ -318,7 +365,6 @@ class CommunityFollowTest extends TestCase
         $this->createMutualFollowing($viewer, $owner);
 
         $this->actingAs($viewer)->get(route('records.show', $privateRecord))->assertOk();
-        $this->actingAs($viewer)->get(route('community.index'))->assertSee($privateRecord->actions);
         $this->actingAs($viewer)->get(route('users.show', $owner))->assertSee($privateRecord->actions);
 
         $this->actingAs($viewer)

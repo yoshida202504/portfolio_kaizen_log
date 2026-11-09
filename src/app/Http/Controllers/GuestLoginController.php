@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Database\Seeders\DemoSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,9 @@ class GuestLoginController extends Controller
                 'guest' => 'ゲスト用のアカウントがまだ作成されていません。php artisan db:seed を実行してください。',
             ]);
         }
+
+        // ゲストはみんなで使うアカウントなので、ログインのたびにデモの状態に戻す
+        (new DemoSeeder)->resetGuest($guest);
 
         Auth::login($guest);
         $request->session()->regenerate();
