@@ -108,7 +108,7 @@ class DailyRecordController extends Controller
         }
 
         if ($source === 'community') {
-            return [route('community.index', ['page' => $page]).'#'.$fragment, 'Communityへ戻る'];
+            return [route('community.index', $this->searchFilters($request, $page)).'#'.$fragment, 'Communityへ戻る'];
         }
 
         if ($source === 'user' && $request->integer('user') === $record->user_id) {
@@ -119,20 +119,28 @@ class DailyRecordController extends Controller
         }
 
         if ($source === 'search') {
-            $filters = ['page' => $page];
-
-            foreach (['record_date', 'keyword'] as $filter) {
-                $value = $request->input($filter);
-
-                if (is_string($value) && $value !== '') {
-                    $filters[$filter] = $value;
-                }
-            }
-
-            return [route('records.search', $filters).'#'.$fragment, '検索結果へ戻る'];
+            return [route('records.search', $this->searchFilters($request, $page)).'#'.$fragment, '検索結果へ戻る'];
         }
 
         return [route('home'), '日報一覧へ戻る'];
+    }
+
+    /**
+     * @return array<string, int|string>
+     */
+    private function searchFilters(Request $request, int $page): array
+    {
+        $filters = ['page' => $page];
+
+        foreach (['record_date', 'keyword'] as $filter) {
+            $value = $request->input($filter);
+
+            if (is_string($value) && $value !== '') {
+                $filters[$filter] = $value;
+            }
+        }
+
+        return $filters;
     }
 
     private function deleteImage(DailyRecord $record): void
