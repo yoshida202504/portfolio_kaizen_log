@@ -28,6 +28,28 @@ services:
     networks:
       - app-network
 
+  # 毎朝8時のお知らせメールなど、routes/console.php のスケジュールを動かす
+  scheduler:
+    build: ./infra/php
+    user: "1000:1000"
+    working_dir: /data
+    # app と同じく、/data が空のまま動き続けないようにする
+    command: ["sh", "-c", "test -f /data/artisan || { echo '/data is empty: bind mount not ready' >&2; exit 1; }; exec php artisan schedule:work"]
+    volumes:
+      - ./src:/data
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - app-network
+
   web:
     image: nginx:1.30-alpine
     ports:
