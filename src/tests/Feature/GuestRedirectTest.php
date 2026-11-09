@@ -6,10 +6,8 @@ use Tests\TestCase;
 
 class GuestRedirectTest extends TestCase
 {
-    public function test_guest_is_redirected_to_login_page(): void
+    public function test_guest_is_redirected_to_login_page_from_home(): void
     {
-        $response = $this->get('/');
-
-        $response->assertRedirect(route('login'));
+        $this->get('/home')->assertRedirect(route('login'));
     }
 }

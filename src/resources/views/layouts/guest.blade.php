@@ -8,7 +8,7 @@
     </head>
     <body class="guest-body">
         <main class="guest-main">
-            <a class="brand guest-brand" href="{{ route('login') }}">
+            <a class="brand guest-brand" href="{{ route('top') }}">
                 <span class="brand-mark" aria-hidden="true">✦</span>
                 <span>Kaizen Log</span>
             </a>

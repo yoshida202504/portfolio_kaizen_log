@@ -230,3 +230,24 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
     .profile-grid { grid-template-columns: 1fr; }
     .guest-card { padding: 24px 20px; }
 }
+
+/* トップページ（未ログイン） */
+.top-body { min-height: 100vh; background: radial-gradient(circle at 8% 12%, #dcefe9 0 5%, transparent 5.2%), radial-gradient(circle at 92% 88%, #dbeaf5 0 7%, transparent 7.2%), #f7f7f2; }
+.top-page { max-width: 880px; margin: 0 auto; padding: 28px 24px 60px; }
+.top-header { display: flex; align-items: center; padding-bottom: 18px; border-bottom: 1px solid #e4e8e2; }
+.top-hero { padding: 48px 0 30px; text-align: center; }
+.top-hero h1 { margin: 0; color: #153a63; font-size: 2.2rem; }
+.top-hero > p { margin: 12px 0 26px; color: #67808f; }
+.top-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.top-guest { margin-top: 16px; }
+.top-features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 10px; }
+.top-features div { padding: 20px; text-align: center; background: #fff; border: 1px solid #e3e9e5; border-radius: 12px; }
+.top-features span { color: #2b927c; font-size: 1.6rem; }
+.top-features strong { display: block; margin: 6px 0; color: #173e66; }
+.top-features p { margin: 0; color: #71808a; font-size: .9rem; }
+.top-cycle { margin-top: 18px; padding: 18px; color: #173e66; font-weight: 700; line-height: 2.2; text-align: center; background: #edf5f2; border-radius: 12px; }
+.top-cycle em { margin: 0 2px; padding: 4px 10px; font-style: normal; background: #fff; border-radius: 6px; }
+@media (max-width: 720px) {
+    .top-hero h1 { font-size: 1.6rem; }
+    .top-features { grid-template-columns: minmax(0, 1fr); }
+}
