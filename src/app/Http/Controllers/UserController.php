@@ -13,6 +13,7 @@ class UserController extends Controller
         $currentUser = $request->user();
         $isOwnProfile = $currentUser->is($user);
         $isFollowing = ! $isOwnProfile && $currentUser->isFollowing($user);
+        $canFollow = ! $currentUser->isGuest() && ! $user->isGuest();
 
         $dailyRecords = $isOwnProfile
             ? collect()
@@ -22,6 +23,6 @@ class UserController extends Controller
                 ->latestRecordFirst()
                 ->paginate(10);
 
-        return view('users.show', compact('user', 'isOwnProfile', 'isFollowing', 'dailyRecords'));
+        return view('users.show', compact('user', 'isOwnProfile', 'isFollowing', 'canFollow', 'dailyRecords'));
     }
 }

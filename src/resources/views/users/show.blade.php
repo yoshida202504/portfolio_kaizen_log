@@ -14,6 +14,8 @@
         <div class="form-actions">
             @if ($isOwnProfile)
                 <p>自分のプロフィールです。日報は<a href="{{ route('home') }}">自分の日報一覧</a>で確認できます。</p>
+            @elseif (! $canFollow)
+                <p class="form-help">ゲストユーザーはフォローできません。</p>
             @elseif ($isFollowing)
                 <form method="POST" action="{{ route('users.follow.destroy', $user) }}">@csrf @method('DELETE') <button class="button-secondary" type="submit">フォローを解除する</button></form>
             @else
