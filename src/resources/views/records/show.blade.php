@@ -62,7 +62,7 @@
                 @forelse ($record->comments as $comment)
                     <article id="comment-{{ $comment->id }}" class="comment">
                         @php($isSubmittedCommentForm = old('comment_form') === (string) $comment->id)
-                        <p class="comment-meta">{{ $comment->user?->name ?? '退会したユーザー' }}</p>
+                        <p class="comment-meta">{{ $comment->user->name }}</p>
                         <p class="comment-body">{{ $comment->body }}</p>
                         @can('update', $comment)
                             <form method="POST" action="{{ route('comments.update', $comment) }}">

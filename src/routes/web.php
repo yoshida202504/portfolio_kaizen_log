@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/improvement-records', [ImprovementRecordController::class, 'index'])->name('improvement-records.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/withdraw', [ProfileController::class, 'withdraw'])->name('profile.withdraw');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/records/create', [DailyRecordController::class, 'create'])->name('records.create');
     Route::post('/records', [DailyRecordController::class, 'store'])->name('records.store');

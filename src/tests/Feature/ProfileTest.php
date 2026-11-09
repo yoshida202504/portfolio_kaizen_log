@@ -28,7 +28,8 @@ class ProfileTest extends TestCase
             ->assertOk()
             ->assertSee($user->name)
             ->assertSee($user->email)
-            ->assertSee('アカウント退会');
+            ->assertSee('退会をご希望の方はこちら')
+            ->assertSee(route('profile.withdraw'), false);
     }
 
     public function test_authenticated_user_can_update_their_profile_and_keep_their_own_name_and_email(): void
@@ -101,14 +102,32 @@ class ProfileTest extends TestCase
         $this->assertFalse(Schema::hasColumn('users', 'gender'));
     }
 
+    public function test_withdraw_page_shows_what_happens_and_the_agreement(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('profile.withdraw'))
+            ->assertOk()
+            ->assertSee('退会の確認')
+            ->assertSee('退会すると、次のようになります')
+            ->assertSee('上記を確認し、退会することに同意します。')
+            ->assertSee(route('profile.destroy'), false);
+    }
+
+    public function test_visitor_cannot_open_the_withdraw_page(): void
+    {
+        $this->get(route('profile.withdraw'))->assertRedirect(route('login'));
+    }
+
     public function test_account_withdrawal_requires_confirmation(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->from(route('profile.edit'))
+            ->from(route('profile.withdraw'))
             ->delete(route('profile.destroy'))
-            ->assertRedirect(route('profile.edit'))
+            ->assertRedirect(route('profile.withdraw'))
             ->assertSessionHasErrors('confirm_withdrawal');
 
         $this->assertDatabaseHas('users', ['id' => $user->id, 'deleted_at' => null]);
@@ -121,7 +140,7 @@ class ProfileTest extends TestCase
 
         $this->actingAs($user)
             ->delete(route('profile.destroy'), ['confirm_withdrawal' => '1'])
-            ->assertRedirect(route('login'));
+            ->assertRedirect('/');
 
         $this->assertGuest();
         $this->assertTrue(User::withTrashed()->findOrFail($user->id)->trashed());

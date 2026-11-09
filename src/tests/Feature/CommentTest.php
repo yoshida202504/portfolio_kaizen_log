@@ -272,6 +272,25 @@ class CommentTest extends TestCase
             ->assertDontSee('表示されない削除済みコメントです。');
     }
 
+    public function test_withdrawn_users_comments_are_hidden_but_kept_in_the_database(): void
+    {
+        $owner = User::factory()->create();
+        $record = $this->createRecord($owner, ['is_public' => true]);
+        $withdrawnUser = User::factory()->create();
+        $comment = $this->createComment($withdrawnUser, $record, '退会したユーザーのコメントです。');
+        $this->createComment(User::factory()->create(), $record, '残っているユーザーのコメントです。');
+        $withdrawnUser->delete();
+
+        $this->actingAs($owner)
+            ->get(route('records.show', $record))
+            ->assertOk()
+            ->assertDontSee('退会したユーザーのコメントです。')
+            ->assertDontSee('退会したユーザー</p>', false)
+            ->assertSee('残っているユーザーのコメントです。');
+
+        $this->assertDatabaseHas('comments', ['id' => $comment->id, 'deleted_at' => null]);
+    }
+
     public function test_comment_body_is_escaped_on_the_daily_record_detail_page(): void
     {
         $owner = User::factory()->create();

@@ -25,6 +25,13 @@ class ProfileController extends Controller
         return redirect()->route('mypage')->with('success', 'プロフィールを更新しました。');
     }
 
+    public function withdraw(Request $request): View
+    {
+        $this->ensureNotGuest($request);
+
+        return view('profile.withdraw');
+    }
+
     public function destroy(WithdrawAccountRequest $request): RedirectResponse
     {
         $this->ensureNotGuest($request);
@@ -37,7 +44,8 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        // 退会後はトップページ（/）へ
+        return redirect('/');
     }
 
     /**

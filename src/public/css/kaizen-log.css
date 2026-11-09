@@ -182,6 +182,8 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .evaluation-d { color: #8d5260; background: #fce9e9; }
 .danger-zone { background: #fff7f7; border-color: #f3cbce; }
 .danger-zone h2 { color: #a9414a; }
+.withdraw-link { margin: 24px 0 0; font-size: .9rem; }
+.withdraw-link a { color: #71808a; }
 
 .guest-body { display: grid; min-height: 100vh; padding: 28px 16px; place-items: center; background: radial-gradient(circle at 8% 12%, #dcefe9 0 5%, transparent 5.2%), radial-gradient(circle at 92% 88%, #dbeaf5 0 7%, transparent 7.2%), #f7f7f2; }
 .guest-main { width: min(480px, 100%); }
