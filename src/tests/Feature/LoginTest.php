@@ -57,7 +57,7 @@ class LoginTest extends TestCase
 
         $this->assertAuthenticatedAs($user);
 
-        $this->post(route('logout'))->assertRedirect(route('login'));
+        $this->post(route('logout'))->assertRedirect(route('top'));
 
         foreach (range(1, 5) as $attempt) {
             $this->from(route('login'))
