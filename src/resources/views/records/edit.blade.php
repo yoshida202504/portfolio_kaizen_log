@@ -12,7 +12,7 @@
         @if ($errors->any())
             <div class="error-summary" role="alert"><p>入力内容を確認してください。</p><ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
         @endif
-        <form method="POST" action="{{ route('records.update', $record) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('records.update', $record) }}" enctype="multipart/form-data" data-publish-confirm data-was-public="{{ $record->is_public ? '1' : '0' }}">
             @csrf
             @method('PATCH')
             <div class="form-field"><label for="record_date">日付<span class="field-required">必須</span></label><input id="record_date" name="record_date" type="date" value="{{ old('record_date', $record->record_date) }}" required aria-invalid="{{ $errors->has('record_date') ? 'true' : 'false' }}" aria-describedby="@error('record_date') record-date-error @enderror">@error('record_date')<p id="record-date-error" class="field-error">{{ $message }}</p>@enderror</div>
@@ -29,4 +29,6 @@
             <div class="form-actions"><a class="button-secondary" href="{{ route('records.show', $record) }}">キャンセル</a><button class="button" type="submit">更新する</button></div>
         </form>
     </section>
+
+    @include('records.partials.publish-dialog')
 @endsection

@@ -17,7 +17,7 @@
             <div class="error-summary" role="alert"><p>入力内容を確認してください。</p><ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
         @endif
 
-        <form method="POST" action="{{ route('records.store') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('records.store') }}" enctype="multipart/form-data" data-publish-confirm data-was-public="0">
             @csrf
             <div class="form-field">
                 <label for="record_date">日付<span class="field-required">必須</span></label>
@@ -67,4 +67,6 @@
             <div class="form-actions"><button class="button" type="submit">日報を登録する</button></div>
         </form>
     </section>
+
+    @include('records.partials.publish-dialog')
 @endsection
