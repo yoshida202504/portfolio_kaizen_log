@@ -6,11 +6,16 @@ use App\Models\Comment;
 use App\Models\DailyRecord;
 use App\Models\Follow;
 use App\Models\ImprovementRecord;
+use App\Models\Like;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Random\Engine\Mt19937;
+use Random\Randomizer;
 
 /**
  * Seeds Japanese demo data for portfolio reviewers and the guest login.
@@ -20,6 +25,14 @@ use Illuminate\Support\Str;
 class DemoSeeder extends Seeder
 {
     private const DAYS = 90;
+
+    private const RANDOM_SEED = 20261011;
+
+    /**
+     * A seeded generator of its own, so the demo data is the same every time
+     * and is not affected by other code that uses PHP's global random state.
+     */
+    private Randomizer $random;
 
     private const USERS = [
         ['email' => User::GUEST_EMAIL, 'name' => 'ゲストユーザー', 'interval' => 2],
@@ -126,8 +139,8 @@ class DemoSeeder extends Seeder
 
     public function run(): void
     {
-        mt_srand(20261011);
-        $today = CarbonImmutable::now(config('app.timezone'))->startOfDay();
+        $this->random = new Randomizer(new Mt19937(self::RANDOM_SEED));
+        $today = $this->today();
 
         $users = collect(self::USERS)->map(fn (array $attributes): User => $this->demoUser($attributes));
 
@@ -144,6 +157,47 @@ class DemoSeeder extends Seeder
         $this->follow($tanaka, $sato);
 
         $this->createReactions($users->all());
+    }
+
+    /**
+     * Puts the shared guest account back to the demo state.
+     * Called on every guest login so each reviewer starts from the same data.
+     */
+    public function resetGuest(User $guest): void
+    {
+        DB::transaction(function () use ($guest): void {
+            $recordIds = $guest->dailyRecords()->withTrashed()->pluck('id');
+
+            $guest->dailyRecords()->withTrashed()->whereNotNull('image_path')->pluck('image_path')
+                ->each(fn (string $path) => Storage::disk('public')->delete($path));
+
+            Like::withTrashed()
+                ->where('user_id', $guest->id)
+                ->orWhereIn('daily_record_id', $recordIds)
+                ->forceDelete();
+            Comment::withTrashed()
+                ->where('user_id', $guest->id)
+                ->orWhereIn('daily_record_id', $recordIds)
+                ->forceDelete();
+            ImprovementRecord::withTrashed()->whereIn('daily_record_id', $recordIds)->forceDelete();
+            DailyRecord::withTrashed()->whereIn('id', $recordIds)->forceDelete();
+            Follow::query()
+                ->where('follower_id', $guest->id)
+                ->orWhere('followed_id', $guest->id)
+                ->delete();
+
+            // The guest is the first demo user, so the same seed gives the same records as the first seeding.
+            $this->random = new Randomizer(new Mt19937(self::RANDOM_SEED));
+            $this->createDailyRecords($guest, self::USERS[0]['interval'], 0, $this->today());
+
+            $demoUsers = User::query()->whereIn('email', array_column(self::USERS, 'email'))->get()->all();
+            $this->createReactions($demoUsers);
+        });
+    }
+
+    private function today(): CarbonImmutable
+    {
+        return CarbonImmutable::now(config('app.timezone'))->startOfDay();
     }
 
     /**
@@ -165,8 +219,8 @@ class DemoSeeder extends Seeder
     {
         for ($daysAgo = self::DAYS - $offset; $daysAgo >= 0; $daysAgo -= $interval) {
             $recordDate = $today->subDays($daysAgo);
-            $theme = self::THEMES[mt_rand(0, count(self::THEMES) - 1)];
-            $createdAt = $recordDate->setTime(21, mt_rand(0, 59));
+            $theme = self::THEMES[$this->random->getInt(0, count(self::THEMES) - 1)];
+            $createdAt = $recordDate->setTime(21, $this->random->getInt(0, 59));
 
             $record = new DailyRecord([
                 'record_date' => $recordDate->toDateString(),
@@ -175,7 +229,7 @@ class DemoSeeder extends Seeder
                 'improvement_points' => $theme['issue'],
                 'improvement_strategy' => $theme['strategy'],
                 'expected_result' => $theme['expected'],
-                'is_public' => mt_rand(1, 100) <= 75,
+                'is_public' => $this->random->getInt(1, 100) <= 75,
             ]);
             $record->user()->associate($user);
             $record->created_at = $createdAt;
@@ -193,14 +247,14 @@ class DemoSeeder extends Seeder
      */
     private function createImprovementRecord(DailyRecord $record, array $theme, CarbonImmutable $recordDate, CarbonImmutable $today, int $daysAgo): void
     {
-        if ($daysAgo <= 6 && mt_rand(1, 100) <= 60) {
+        if ($daysAgo <= 6 && $this->random->getInt(1, 100) <= 60) {
             return;
         }
 
         $evaluation = $this->randomEvaluation();
-        $reflectedAt = $recordDate->addDays(min(mt_rand(1, 6), $daysAgo))->setTime(22, 0);
+        $reflectedAt = $recordDate->addDays(min($this->random->getInt(1, 6), $daysAgo))->setTime(22, 0);
 
-        $reason = self::NOT_EXECUTED_REASONS[mt_rand(0, count(self::NOT_EXECUTED_REASONS) - 1)];
+        $reason = self::NOT_EXECUTED_REASONS[$this->random->getInt(0, count(self::NOT_EXECUTED_REASONS) - 1)];
         $attributes = $evaluation === 'D'
             ? [
                 'execution_status' => ImprovementRecord::STATUS_NOT_EXECUTED,
@@ -222,7 +276,7 @@ class DemoSeeder extends Seeder
 
     private function randomEvaluation(): string
     {
-        $roll = mt_rand(1, 100);
+        $roll = $this->random->getInt(1, 100);
 
         return match (true) {
             $roll <= 20 => 'A',
@@ -260,7 +314,7 @@ class DemoSeeder extends Seeder
                 }
 
                 if ($index % 4 === 1 && ! $record->comments()->where('user_id', $user->id)->exists()) {
-                    $comment = new Comment(['body' => self::COMMENTS[mt_rand(0, count(self::COMMENTS) - 1)]]);
+                    $comment = new Comment(['body' => self::COMMENTS[$this->random->getInt(0, count(self::COMMENTS) - 1)]]);
                     $comment->user()->associate($user);
                     $comment->dailyRecord()->associate($record);
                     $comment->save();
