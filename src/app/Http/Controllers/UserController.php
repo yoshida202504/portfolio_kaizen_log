@@ -23,6 +23,17 @@ class UserController extends Controller
                 ->latestRecordFirst()
                 ->paginate(10);
 
-        return view('users.show', compact('user', 'isOwnProfile', 'isFollowing', 'canFollow', 'dailyRecords'));
+        // フォロー中・フォロワーの一覧は、相互フォローのときだけ取り出す
+        $isMutual = ! $isOwnProfile && $currentUser->isMutuallyFollowing($user);
+
+        $following = $isMutual
+            ? $user->following()->with('followed')->whereHas('followed')->latest('created_at')->get()
+            : collect();
+
+        $followers = $isMutual
+            ? $user->followers()->with('follower')->whereHas('follower')->latest('created_at')->get()
+            : collect();
+
+        return view('users.show', compact('user', 'isOwnProfile', 'isFollowing', 'canFollow', 'isMutual', 'following', 'followers', 'dailyRecords'));
     }
 }

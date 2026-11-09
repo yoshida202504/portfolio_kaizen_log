@@ -149,6 +149,9 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .relationship-tabs.is-single { grid-template-columns: minmax(0, 1fr); }
 .relationship-tab { min-width: 0; padding: 14px 10px 12px; color: #617786; background: transparent; border: 0; border-bottom: 3px solid transparent; font-weight: 800; overflow-wrap: anywhere; }
 .relationship-tab:hover { color: #174d83; background: #edf5f2; }
+.relationship-tab.is-disabled { color: #b3bfc7; cursor: not-allowed; text-align: center; }
+.relationship-tab.is-disabled:hover { color: #b3bfc7; background: transparent; }
+.relationship-note { margin: 28px 0 10px; color: #c2410c; font-size: .9rem; font-weight: 700; }
 .relationship-tab.is-active { color: #174d83; background: #fff; border-bottom-color: #2b927c; }
 .relationship-panel { min-width: 0; padding: 22px; }
 .relationship-panel[hidden] { display: none; }
