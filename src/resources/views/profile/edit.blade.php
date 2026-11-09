@@ -26,16 +26,7 @@
         </form>
     </section>
 
-    <section class="card form-card danger-zone">
-        <h2>アカウント退会</h2>
-        <p>退会するとログアウトします。退会後はログインできなくなります。</p>
-        <form method="POST" action="{{ route('profile.destroy') }}">
-            @csrf @method('DELETE')
-            <fieldset class="plain-fieldset" @disabled($user->isGuest())>
-            <label class="check-label"><input name="confirm_withdrawal" type="checkbox" value="1" @checked(old('confirm_withdrawal'))> 退会することに同意します。</label>
-            @error('confirm_withdrawal')<p class="field-error">{{ $message }}</p>@enderror
-            <div class="form-actions"><button class="button-danger" type="submit">退会する</button></div>
-            </fieldset>
-        </form>
-    </section>
+    @unless ($user->isGuest())
+        <p class="withdraw-link"><a href="{{ route('profile.withdraw') }}">退会をご希望の方はこちら</a></p>
+    @endunless
 @endsection

@@ -90,7 +90,12 @@ class GuestLoginTest extends TestCase
         $this->actingAs($guest)
             ->get(route('profile.edit'))
             ->assertOk()
-            ->assertSee('ゲストユーザーはプロフィールの変更と退会ができません。');
+            ->assertSee('ゲストユーザーはプロフィールの変更と退会ができません。')
+            ->assertDontSee(route('profile.withdraw'), false);
+
+        $this->actingAs($guest)
+            ->get(route('profile.withdraw'))
+            ->assertForbidden();
 
         $this->actingAs($guest)
             ->patch(route('profile.update'), [

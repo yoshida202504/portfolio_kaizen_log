@@ -22,7 +22,8 @@ class DailyRecordController extends Controller
         $this->authorize('view', $record);
 
         $record->loadCount('likes')->load([
-            'comments' => fn ($query) => $query->with('user')->oldest(),
+            // 退会したユーザーのコメントはデータを残したまま表示しない
+            'comments' => fn ($query) => $query->whereHas('user')->with('user')->oldest(),
             'improvementRecord',
         ]);
 
