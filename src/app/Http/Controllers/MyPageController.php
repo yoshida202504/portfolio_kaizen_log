@@ -13,13 +13,14 @@ class MyPageController extends Controller
     {
         $user = $request->user();
 
-        $following = $user->following()
+        // ゲストはフォローできず、フォローもされないため、一覧を作らない
+        $following = $user->isGuest() ? collect() : $user->following()
             ->with('followed')
             ->whereHas('followed')
             ->latest('created_at')
             ->get();
 
-        $followers = $user->followers()
+        $followers = $user->isGuest() ? collect() : $user->followers()
             ->with('follower')
             ->whereHas('follower')
             ->latest('created_at')

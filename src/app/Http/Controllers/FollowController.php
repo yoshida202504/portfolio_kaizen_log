@@ -11,6 +11,7 @@ class FollowController extends Controller
     public function store(Request $request, User $user): RedirectResponse
     {
         $this->ensureNotSelf($request->user(), $user);
+        $this->ensureNotGuest($request->user(), $user);
 
         $request->user()->following()->firstOrCreate([
             'followed_id' => $user->id,
@@ -33,5 +34,13 @@ class FollowController extends Controller
     private function ensureNotSelf(User $currentUser, User $user): void
     {
         abort_if($currentUser->is($user), 403, '自分自身をフォローすることはできません。');
+    }
+
+    /**
+     * The guest account is shared by every reviewer, so it neither follows nor is followed.
+     */
+    private function ensureNotGuest(User $currentUser, User $user): void
+    {
+        abort_if($currentUser->isGuest() || $user->isGuest(), 403, 'ゲストユーザーはフォローできません。');
     }
 }

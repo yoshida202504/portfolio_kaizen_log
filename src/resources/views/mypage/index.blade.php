@@ -34,10 +34,12 @@
         </section>
 
         <section class="card relationship-card" aria-label="いいねとフォローの情報">
-            <div class="relationship-tabs" role="tablist" aria-label="いいねとフォローの表示を切り替える">
+            <div class="relationship-tabs{{ $user->isGuest() ? ' is-single' : '' }}" role="tablist" aria-label="いいねとフォローの表示を切り替える">
                 <button id="liked-records-tab" class="relationship-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="liked-records-panel">いいねの日報</button>
-                <button id="following-tab" class="relationship-tab" type="button" role="tab" aria-selected="false" aria-controls="following-panel" tabindex="-1">フォロー中</button>
-                <button id="followers-tab" class="relationship-tab" type="button" role="tab" aria-selected="false" aria-controls="followers-panel" tabindex="-1">フォロワー</button>
+                @unless ($user->isGuest())
+                    <button id="following-tab" class="relationship-tab" type="button" role="tab" aria-selected="false" aria-controls="following-panel" tabindex="-1">フォロー中</button>
+                    <button id="followers-tab" class="relationship-tab" type="button" role="tab" aria-selected="false" aria-controls="followers-panel" tabindex="-1">フォロワー</button>
+                @endunless
             </div>
 
             <div id="liked-records-panel" class="relationship-panel" role="tabpanel" tabindex="0" aria-labelledby="liked-records-tab">
@@ -65,6 +67,7 @@
                 @endif
             </div>
 
+            @unless ($user->isGuest())
             <div id="following-panel" class="relationship-panel" role="tabpanel" tabindex="0" aria-labelledby="following-tab" hidden>
                 <div class="following-list">
                     @forelse ($following as $follow)
@@ -84,6 +87,7 @@
                     @endforelse
                 </div>
             </div>
+            @endunless
         </section>
 
     </div>

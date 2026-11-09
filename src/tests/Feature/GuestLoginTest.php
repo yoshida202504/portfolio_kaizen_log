@@ -84,7 +84,8 @@ class GuestLoginTest extends TestCase
 
         $evaluations = ImprovementRecord::query()->get()->map->evaluation->unique()->sort()->values()->all();
         $this->assertSame(['A', 'B', 'C', 'D'], $evaluations);
-        $this->assertTrue($guest->isMutuallyFollowing(User::query()->where('name', '佐藤 美咲')->firstOrFail()));
+        $this->assertSame(0, Follow::query()->where('follower_id', $guest->id)->orWhere('followed_id', $guest->id)->count());
+        $this->assertGreaterThan(0, Follow::query()->count());
         $this->assertGreaterThan(0, Like::query()->count());
         $this->assertGreaterThan(0, Comment::query()->count());
         $this->assertSame(0, ImprovementRecord::query()->whereDate('executed_at', '>', now()->toDateString())->count());
