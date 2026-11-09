@@ -13,6 +13,7 @@ class UserController extends Controller
         $currentUser = $request->user();
         $isOwnProfile = $currentUser->is($user);
         $isFollowing = ! $isOwnProfile && $currentUser->isFollowing($user);
+        $canFollow = ! $currentUser->isGuest() && ! $user->isGuest();
 
         $dailyRecords = $isOwnProfile
             ? collect()
@@ -33,6 +34,6 @@ class UserController extends Controller
             ? $user->followers()->with('follower')->whereHas('follower')->latest('created_at')->get()
             : collect();
 
-        return view('users.show', compact('user', 'isOwnProfile', 'isFollowing', 'isMutual', 'following', 'followers', 'dailyRecords'));
+        return view('users.show', compact('user', 'isOwnProfile', 'isFollowing', 'canFollow', 'isMutual', 'following', 'followers', 'dailyRecords'));
     }
 }

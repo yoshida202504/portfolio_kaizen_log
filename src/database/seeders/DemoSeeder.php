@@ -139,11 +139,8 @@ class DemoSeeder extends Seeder
             $this->createDailyRecords($user, self::USERS[$index]['interval'], $index, $today);
         }
 
-        [$guest, $sato, $tanaka, $suzuki] = $users->all();
-        $this->follow($guest, $sato);
-        $this->follow($sato, $guest);
-        $this->follow($guest, $tanaka);
-        $this->follow($suzuki, $guest);
+        // ゲストはフォローできず、フォローもされないため、デモユーザー同士だけをフォローさせる
+        [, $sato, $tanaka] = $users->all();
         $this->follow($tanaka, $sato);
 
         $this->createReactions($users->all());

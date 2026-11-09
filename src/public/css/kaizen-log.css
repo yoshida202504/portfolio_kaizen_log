@@ -146,6 +146,7 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .profile-summary strong { min-width: 0; color: #274b67; font-size: 1.2rem; overflow-wrap: anywhere; }
 .relationship-card { padding: 0; overflow: hidden; }
 .relationship-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #f6faf8; border-bottom: 1px solid #e3e9e5; }
+.relationship-tabs.is-single { grid-template-columns: minmax(0, 1fr); }
 .relationship-tab { min-width: 0; padding: 14px 10px 12px; color: #617786; background: transparent; border: 0; border-bottom: 3px solid transparent; font-weight: 800; overflow-wrap: anywhere; }
 .relationship-tab:hover { color: #174d83; background: #edf5f2; }
 .relationship-tab.is-disabled { color: #b3bfc7; cursor: not-allowed; text-align: center; }
