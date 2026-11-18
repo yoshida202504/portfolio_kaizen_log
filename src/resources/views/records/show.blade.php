@@ -106,4 +106,5 @@
             @endcan
         </aside>
     </div>
+    <script src="{{ asset('js/like-keep-scroll.js') }}"></script>
 @endsection
