@@ -165,6 +165,7 @@ input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="
 .activity-bar-chart { display: block; width: 100%; max-width: 100%; height: auto; margin-top: 14px; }
 .improvement-filter-form { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
 .improvement-filter-form .field { flex-basis: 130px; }
+.improvement-filter-error { margin-top: 10px; }
 .improvement-overview { grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 16px 0; }
 .weekly-activity-chart { display: flex; min-height: 220px; gap: 6px; margin-top: 18px; align-items: end; }
 .weekly-activity-bar-group { display: grid; min-width: 0; flex: 1 1 0; gap: 5px; align-items: end; text-align: center; }
