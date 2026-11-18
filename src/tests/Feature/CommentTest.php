@@ -169,6 +169,29 @@ class CommentTest extends TestCase
         ]);
     }
 
+    public function test_comment_author_sees_update_and_delete_buttons_side_by_side(): void
+    {
+        $commenter = User::factory()->create();
+        $record = $this->createRecord(User::factory()->create(), ['is_public' => true]);
+        $comment = $this->createComment($commenter, $record, 'ボタンを確かめるコメントです。');
+
+        $this->actingAs($commenter)
+            ->get(route('records.show', $record))
+            ->assertOk()
+            ->assertSeeInOrder([
+                '<div class="form-actions comment-actions">',
+                '<button class="button" type="submit">更新する</button>',
+                '<button class="button-danger-outline" type="submit" form="comment-delete-'.$comment->id.'">削除する</button>',
+                '<form id="comment-delete-'.$comment->id.'"',
+            ], false);
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('records.show', $record))
+            ->assertOk()
+            ->assertSee('ボタンを確かめるコメントです。')
+            ->assertDontSee('form="comment-delete-'.$comment->id.'"', false);
+    }
+
     public function test_comment_author_can_update_their_comment(): void
     {
         $commenter = User::factory()->create();
