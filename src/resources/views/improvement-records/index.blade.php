@@ -17,7 +17,7 @@
                 <label for="year">表示年</label>
                 <select id="year" name="year">
                     @for ($optionYear = now(config('app.timezone'))->year; $optionYear >= now(config('app.timezone'))->year - 4; $optionYear--)
-                        <option value="{{ $optionYear }}" @selected($year === $optionYear)>{{ $optionYear }}年</option>
+                        <option value="{{ $optionYear }}" @selected((int) old('year', $year) === $optionYear)>{{ $optionYear }}年</option>
                     @endfor
                 </select>
             </div>
@@ -25,31 +25,35 @@
                 <label for="start_month">開始月</label>
                 <select id="start_month" name="start_month">
                     @for ($month = 1; $month <= 12; $month++)
-                        <option value="{{ $month }}" @selected($startMonth === $month)>{{ $month }}月</option>
+                        <option value="{{ $month }}" @selected((int) old('start_month', $startMonth) === $month)>{{ $month }}月</option>
                     @endfor
                 </select>
             </div>
             <div class="field">
                 <label for="end_month">終了月</label>
-                <select id="end_month" name="end_month">
+                <select id="end_month" name="end_month" aria-invalid="{{ $errors->has('end_month') ? 'true' : 'false' }}" @error('end_month') aria-describedby="end-month-error" @enderror>
                     @for ($month = 1; $month <= 12; $month++)
-                        <option value="{{ $month }}" @selected($endMonth === $month)>{{ $month }}月</option>
+                        <option value="{{ $month }}" @selected((int) old('end_month', $endMonth) === $month)>{{ $month }}月</option>
                     @endfor
                 </select>
             </div>
             <div class="field">
                 <label for="evaluation">評価</label>
                 <select id="evaluation" name="evaluation">
-                    <option value="all" @selected($evaluation === 'all')>すべて（A〜D）</option>
-                    <option value="executed" @selected($evaluation === 'executed')>実施済み（A〜C）</option>
-                    <option value="above_or_expected" @selected($evaluation === 'above_or_expected')>想定どおり以上（A・B）</option>
-                    <option value="above" @selected($evaluation === 'above')>想定以上（A）</option>
-                    <option value="below" @selected($evaluation === 'below')>想定より低い（C）</option>
-                    <option value="not_executed" @selected($evaluation === 'not_executed')>未実施（D）</option>
+                    <option value="all" @selected(old('evaluation', $evaluation) === 'all')>すべて（A〜D）</option>
+                    <option value="executed" @selected(old('evaluation', $evaluation) === 'executed')>実施済み（A〜C）</option>
+                    <option value="above_or_expected" @selected(old('evaluation', $evaluation) === 'above_or_expected')>想定どおり以上（A・B）</option>
+                    <option value="above" @selected(old('evaluation', $evaluation) === 'above')>想定以上（A）</option>
+                    <option value="below" @selected(old('evaluation', $evaluation) === 'below')>想定より低い（C）</option>
+                    <option value="not_executed" @selected(old('evaluation', $evaluation) === 'not_executed')>未実施（D）</option>
                 </select>
             </div>
             <button class="button" type="submit">絞り込む</button>
         </form>
+        @error('end_month')<p id="end-month-error" class="field-error improvement-filter-error" role="alert">{{ $message }}</p>@enderror
+        @foreach (['year', 'start_month', 'evaluation'] as $field)
+            @error($field)<p class="field-error improvement-filter-error" role="alert">{{ $message }}</p>@enderror
+        @endforeach
         <p class="form-help">実施済み（A〜C）は実施日、未実施（D）は日報日を基準に期間へ含めています。</p>
     </section>
 

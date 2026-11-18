@@ -33,6 +33,19 @@ class ImprovementRecordIndexTest extends TestCase
             ->assertRedirect(route('login'));
     }
 
+    public function test_end_month_before_start_month_shows_a_japanese_error_and_keeps_the_selection(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->from(route('improvement-records.index'))
+            ->followingRedirects()
+            ->get(route('improvement-records.index', ['year' => 2026, 'start_month' => 12, 'end_month' => 1, 'evaluation' => 'all']))
+            ->assertOk()
+            ->assertSee('終了月は開始月と同じか、それより後の月を選んでください。')
+            ->assertSee('aria-invalid="true"', false)
+            ->assertSee('<option value="12" selected>12月</option>', false)
+            ->assertSee('<option value="1" selected>1月</option>', false);
+    }
+
     public function test_improvement_records_page_shows_weekly_activity_and_a_to_d_breakdown(): void
     {
         $user = User::factory()->create();
