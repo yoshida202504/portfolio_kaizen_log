@@ -69,11 +69,21 @@
                                 @csrf @method('PATCH')
                                 <input type="hidden" name="comment_form" value="{{ $comment->id }}">
                                 <div class="form-field"><label for="comment-body-{{ $comment->id }}">コメントを編集<span class="field-required">必須</span></label><textarea id="comment-body-{{ $comment->id }}" name="body" rows="3" maxlength="1000" required aria-invalid="{{ $isSubmittedCommentForm && $errors->has('body') ? 'true' : 'false' }}" @if ($isSubmittedCommentForm && $errors->has('body')) aria-describedby="comment-body-error-{{ $comment->id }}" @endif>{{ $isSubmittedCommentForm ? old('body') : $comment->body }}</textarea>@if ($isSubmittedCommentForm)@error('body')<p id="comment-body-error-{{ $comment->id }}" class="field-error">{{ $message }}</p>@enderror @endif</div>
-                                <div class="form-actions"><button class="button-secondary" type="submit">更新する</button></div>
+                                <div class="form-actions comment-actions">
+                                    <button class="button" type="submit">更新する</button>
+                                    @can('delete', $comment)
+                                        <button class="button-danger-outline" type="submit" form="comment-delete-{{ $comment->id }}">削除する</button>
+                                    @endcan
+                                </div>
                             </form>
                         @endcan
                         @can('delete', $comment)
-                            <form method="POST" action="{{ route('comments.destroy', $comment) }}" onsubmit="return confirm('このコメントを削除しますか？')">@csrf @method('DELETE') <button class="text-button" type="submit">削除する</button></form>
+                            {{-- 削除用のフォーム。ボタンは上の「更新する」の横に並べ、form 属性でこのフォームを送る --}}
+                            <form id="comment-delete-{{ $comment->id }}" method="POST" action="{{ route('comments.destroy', $comment) }}" onsubmit="return confirm('このコメントを削除しますか？')">@csrf @method('DELETE')
+                                @cannot('update', $comment)
+                                    <div class="form-actions comment-actions"><button class="button-danger-outline" type="submit">削除する</button></div>
+                                @endcannot
+                            </form>
                         @endcan
                     </article>
                 @empty
