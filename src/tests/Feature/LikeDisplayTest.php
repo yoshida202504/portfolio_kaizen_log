@@ -68,4 +68,15 @@ class LikeDisplayTest extends TestCase
             ->assertOk()
             ->assertSee('aria-label="いいね 3件"', false);
     }
+
+    public function test_daily_record_detail_loads_the_script_that_keeps_the_scroll_position_after_liking(): void
+    {
+        $record = DailyRecord::factory()->for(User::factory()->create())->create(['is_public' => true]);
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('records.show', $record))
+            ->assertOk()
+            ->assertSee('id="like-section"', false)
+            ->assertSee('js/like-keep-scroll.js', false);
+    }
 }
